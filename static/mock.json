@@ -1,0 +1,53 @@
+{
+  "ad": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "number"
+      },
+      "creatives": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "number"
+            },
+            "type": {
+              "type": "string"
+            },
+            "weight": {
+              "type": "number"
+            },
+            "trackers": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "provider": {
+                    "type": "string"
+                  },
+                  "event": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "startDate": {
+        "type": "string"
+      },
+      "endDate": {
+        "type": "string"
+      },
+      "duration": {
+        "type": "number"
+      }
+    }
+  }
+}

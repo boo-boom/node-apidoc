@@ -1,0 +1,228 @@
+{
+  "apiList": [
+    {
+      "description": "美学实验室心得详情",
+      "origin": "node",
+      "detail": "",
+      "encryptionOnly": false,
+      "groupOwner": "王柯迪",
+      "groupName": "node_aestheticslab",
+      "methodName": "node_aestheticslab.getReviewDetail",
+      "methodOwner": "陈志祥",
+      "needVerify": false,
+      "returnType": "Api_AESTHETICSLAB_ReviewDetailResp_Node",
+      "securityLevel": "Anonym",
+      "state": "OPEN",
+      "parameterInfoList": [
+          {
+              "description": "id",
+              "injectOnly": false,
+              "isList": false,
+              "isRequired": true,
+              "isRsaEncrypt": false,
+              "name": "reviewId",
+              "sequence": "",
+              "type": "long"
+          }
+      ],
+      "reqStructList": [],
+      "respStructList": [
+          {
+              "fieldList": [
+                  {
+                      "desc": "头像",
+                      "isList": false,
+                      "name": "avatar",
+                      "type": "string"
+                  },
+                  {
+                      "desc": "昵称",
+                      "isList": false,
+                      "name": "nick",
+                      "type": "string"
+                  },
+
+                  {
+                      "desc": "转发总数",
+                      "isList": false,
+                      "name": "shareCount",
+                      "type": "long"
+                  },
+                  {
+                      "desc": "点赞总数",
+                      "isList": false,
+                      "name": "likeCount",
+                      "type": "Api_AESTHETICSLAB_123_Node"
+                  },
+                  {
+                      "desc": "心得",
+                      "isList": false,
+                      "name": "reviewInfo",
+                      "type": "Api_AESTHETICSLAB_ReviewInfo_Node"
+                  }
+              ],
+              "groupName": "node_aestheticslab",
+              "name": "Api_AESTHETICSLAB_ReviewDetailResp_Node"
+          },
+          {
+              "fieldList": [
+                  {
+                      "desc": "aaa1",
+                      "isList": false,
+                      "name": "url",
+                      "type": "string"
+                  },
+                  {
+                      "desc": "aaa2",
+                      "isList": false,
+                      "name": "height",
+                      "type": "short"
+                  }
+              ],
+              "groupName": "node_aestheticslab",
+              "name": "Api_AESTHETICSLAB_123_Node"
+          },
+          {
+              "fieldList": [
+                  {
+                      "desc": "id",
+                      "isList": false,
+                      "name": "id",
+                      "type": "int"
+                  },
+                  {
+                      "desc": "内容平台postId 评论点赞用",
+                      "isList": false,
+                      "name": "postId",
+                      "type": "int"
+                  },
+                  {
+                      "desc": "心得内容",
+                      "isList": false,
+                      "name": "content",
+                      "type": "string"
+                  },
+                  {
+                      "desc": "图片列表",
+                      "isList": true,
+                      "name": "imageInfoList",
+                      "type": "Api_AESTHETICSLAB_ImageInfo_Node"
+                  }
+              ],
+              "groupName": "node_aestheticslab",
+              "name": "Api_AESTHETICSLAB_ReviewInfo_Node"
+          },
+          {
+              "fieldList": [
+                  {
+                      "desc": "图片地址",
+                      "isList": false,
+                      "name": "url",
+                      "type": "string"
+                  },
+                  {
+                      "desc": "图片高度",
+                      "isList": false,
+                      "name": "height",
+                      "type": "short"
+                  },
+                  {
+                      "desc": "图片宽度",
+                      "isList": false,
+                      "name": "width",
+                      "type": "short"
+                  },
+                  {
+                      "desc": "测试",
+                      "isList": false,
+                      "name": "test",
+                      "type": "Api_AESTHETICSLAB_Info_Node"
+                  }
+              ],
+              "groupName": "node_aestheticslab",
+              "name": "Api_AESTHETICSLAB_ImageInfo_Node"
+          },
+          {
+              "fieldList": [
+                  {
+                      "desc": "图片高度111",
+                      "isList": false,
+                      "name": "height",
+                      "type": "short"
+                  },
+                  {
+                      "desc": "图片宽度111",
+                      "isList": false,
+                      "name": "width",
+                      "type": "short"
+                  }
+              ],
+              "groupName": "node_aestheticslab",
+              "name": "Api_AESTHETICSLAB_Info_Node"
+          }
+      ]
+  },
+    {
+      "description": "内容点赞/取消赞",
+      "origin": "node",
+      "detail": "",
+      "encryptionOnly": false,
+      "groupOwner": "王柯迪",
+      "groupName": "node_yitShopContentService",
+      "methodName": "node_yitShopContentService.likePost",
+      "methodOwner": "陈志祥",
+      "needVerify": false,
+      "returnType": "Api_BoolResp_Node",
+      "securityLevel": "User",
+      "state": "OPEN",
+      "parameterInfoList": [
+        {
+          "description": "内容类型:AT美学实验室,ATV美学实验室心得,SF二楼视频,YITCOM生活馆内容",
+          "injectOnly": false,
+          "isList": false,
+          "isRequired": true,
+          "isRsaEncrypt": false,
+          "name": "type",
+          "sequence": "",
+          "type": "string"
+        },
+        {
+          "description": "被点赞的实体id",
+          "injectOnly": false,
+          "isList": false,
+          "isRequired": true,
+          "isRsaEncrypt": false,
+          "name": "entityId",
+          "sequence": "",
+          "type": "long"
+        },
+        {
+          "description": "true代表喜欢,false代表不喜欢",
+          "injectOnly": false,
+          "isList": false,
+          "isRequired": true,
+          "isRsaEncrypt": false,
+          "name": "isLike",
+          "sequence": "",
+          "type": "boolean"
+        }
+      ],
+      "reqStructList": [],
+      "respStructList": [
+        {
+          "fieldList": [
+            {
+              "desc": "布尔类型返回值",
+              "isList": false,
+              "name": "value",
+              "type": "boolean"
+            }
+          ],
+          "groupName": "node_yitShopContentService",
+          "name": "Api_BoolResp_Node"
+        }
+      ]
+    }
+  ],
+  "codeList": []
+}

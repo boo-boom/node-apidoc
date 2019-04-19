@@ -33,7 +33,14 @@ let rendererConfig = {
     rules: [
       {
         test: /\.scss$/,
-        use: ['vue-style-loader', 'css-loader', 'sass-loader']
+        use: ['vue-style-loader', 'css-loader', 'sass-loader', {
+          loader: require.resolve('sass-resources-loader'),
+          options: {
+            resources: [
+              path.resolve(__dirname, '../src/renderer/assets/style/var.scss'),
+            ]
+          }
+        }]
       },
       {
         test: /\.sass$/,
