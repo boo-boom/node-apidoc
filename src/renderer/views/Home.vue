@@ -11,7 +11,7 @@
       <el-button class="btn" size="mini" type="primary" :icon="showBtnLoading?'el-icon-loading':''" @click="docToJson">文档转换</el-button>
     </div>
     <div class="right">
-      <el-form v-if="docPath" :model="lastObject" :rules="rules" ref="ruleForm" label-width="100px" class="ruleForm">
+      <el-form :model="lastObject" :rules="rules" ref="ruleForm" label-width="100px" class="ruleForm">
         <BaseInfo v-if="JSON.stringify(lastObject.baseInfo)!='{}'" :info="lastObject.baseInfo"/>
         <ParamsInfo v-if="lastObject.params.length" :info="lastObject.params"/>
       </el-form>
@@ -48,14 +48,7 @@ export default {
       showBtnLoading: false,
       docPath: '',
       lastObject: {
-        baseInfo: {
-          methodName: "",
-          description: "",
-          groupOwner: "",
-          methodOwner: "",
-          state: "",
-          securityLevel: ""
-        },
+        baseInfo: {},
         params: [{
           description: "id",
             injectOnly: false,
@@ -78,7 +71,7 @@ export default {
     }
   },
   mounted() {
-    // this.apiDocStr = apiDocStr;
+    this.apiDocStr = apiDocStr;
   },
   methods: {
     docToJson() {
@@ -95,27 +88,40 @@ export default {
             if(!isError) {
               this.$message.error("文档格式出错");
             } else {
-              remote.dialog.showOpenDialog(
-                {
-                  title: "选择当前文档所需存放的目录",
-                  properties: ["openDirectory"],
-                },
-                filePaths => {
-                  if (filePaths) {
-                    // this.docPath = filePaths[0];
-                    // fomartJson(infoJsonPath)
-                  }
+              fomartJson(infoJsonPath, () => {
+                const infoJson = require('../../../static/apiDoc/info.json');
+                const curApi = infoJson.apiList[0];
+                this.lastObject.baseInfo = {
+                  methodName: curApi.methodName,
+                  description: curApi.description,
+                  groupOwner: curApi.groupOwner,
+                  methodOwner: curApi.methodOwner,
+                  state: curApi.state,
+                  securityLevel: curApi.securityLevel
                 }
-              );
-              this.$message({
-                showClose: true,
-                message: "创建转换成功",
-                type: "success"
+                console.log(infoJson)
+                this.$message({
+                  showClose: true,
+                  message: "创建转换成功",
+                  type: "success"
+                });
               });
             }
           }
         });
       })
+
+      // remote.dialog.showOpenDialog(
+      //   {
+      //     title: "选择当前文档所需存放的目录",
+      //     properties: ["openDirectory"],
+      //   },
+      //   filePaths => {
+      //     if (filePaths) {
+      //       fomartJson(infoJsonPath);
+      //     }
+      //   }
+      // );
     },
     getJsonTree(data, type) {
       const itemArr = [];

@@ -7,7 +7,7 @@ const { uniqBy } = require('lodash')
  * @param {String} inputPath apidoc生成的json文件路径
  * @param {String} outputPath format之后的json输出路劲
  */
-function fomartJson(outputPath) {
+function fomartJson(outputPath, callback) {
   let json_data = require('../../../../static/apiDoc/api_data.json')
   let errorCodeAggregate = []
   let resApi = json_data.map(json => {
@@ -76,6 +76,8 @@ function fomartJson(outputPath) {
 
   const result_json = JSON.stringify({ apiList: resApi, codeList: uniqBy(errorCodeAggregate, 'code') })
   fs.writeFileSync(outputPath, result_json)
+
+  callback && callback();
   console.log('接口列表json转化完毕')
 }
 /**
