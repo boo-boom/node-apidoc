@@ -4,11 +4,11 @@ const { uniqBy } = require('lodash')
 
 /**
  * 根据apidoc的json生成网关需要的json文件
- * @param {String} inputPath apidoc生成的json文件路径
- * @param {String} outputPath format之后的json输出路劲
+ * @param {Object} api_data apiDoc生成的json
+ * @param {Function} callback 回调函数
  */
-function fomartJson(outputPath, callback) {
-  let json_data = require('../../../../static/apiDoc/api_data.json')
+function fomartJson(api_data, callback) {
+  let json_data = api_data
   let errorCodeAggregate = []
   let resApi = json_data.map(json => {
     let new_json = {}
@@ -74,10 +74,11 @@ function fomartJson(outputPath, callback) {
     return new_json
   });
 
-  const result_json = JSON.stringify({ apiList: resApi, codeList: uniqBy(errorCodeAggregate, 'code') })
-  fs.writeFileSync(outputPath, result_json)
+  const result_json = { apiList: resApi, codeList: uniqBy(errorCodeAggregate, 'code') }
+  const _result_json = JSON.stringify({ apiList: resApi, codeList: uniqBy(errorCodeAggregate, 'code') })
+  fs.writeFileSync(path.resolve(__dirname, '../../../../static/apiDoc/info.json'), _result_json)
 
-  callback && callback();
+  callback && callback(result_json);
   console.log('接口列表json转化完毕')
 }
 /**

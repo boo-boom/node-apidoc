@@ -84,15 +84,19 @@ function createOutputFiles(api, cb) {
   if (app.options.simulate)
     app.log.warn('!!! Simulation !!! No file or dir will be copied or created.');
 
-  app.log.verbose('create dir: ' + app.options.dest);
-  if (!app.options.simulate)
-    fs.mkdirsSync(app.options.dest);
+  // app.log.verbose('create dir: ' + app.options.dest);
+  // if (!app.options.simulate)
+  //   fs.mkdirsSync(app.options.dest);
 
   // Write api_data
-  app.log.verbose('write json file: ' + app.options.dest + 'api_data.json');
+  // app.log.verbose('write json file: ' + app.options.dest + 'api_data.json');
   if (!app.options.simulate) {
-    fs.writeFileSync(app.options.dest + '/api_data.json', api.data + '\n');
-    cb && cb(true);
+    // fs.writeFileSync(app.options.dest + '/api_data.json', api.data + '\n');
+    try {
+      cb && cb(JSON.parse(api.data));
+    } catch(err) {
+      cb && cb(false);
+    }
   }
 
 }

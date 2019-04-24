@@ -30,8 +30,8 @@
  *
  *
  * @block [Api_DynamicEntity]
- * @apiSuccess (Api_DynamicEntity) {[T]} entity 动态实体11111
- * @apiSuccess (Api_DynamicEntity) {string} typeName 实体名123123
+ * @apiSuccess (Api_DynamicEntity) {[T]} entity 动态实体
+ * @apiSuccess (Api_DynamicEntity) {string} typeName 实体名
  *
  *
  * @block [Api_COMMUNITYPOST_ImageInfo]

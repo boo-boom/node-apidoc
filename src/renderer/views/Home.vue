@@ -53,7 +53,6 @@ const path = require('path');
 const fs = require('fs');
 const { fomartJson } = require('@/assets/utils/docJsonFormat')
 const filePath = path.resolve(__dirname, '../../../static/example/apiDocStr.js');
-const infoJsonPath = path.resolve(__dirname, '../../../static/apiDoc/info.json');
 import { remote } from "electron";
 import nanoid from 'nanoid';
 import generateSchema from "generate-schema/src/schemas/json.js";
@@ -196,18 +195,17 @@ export default {
       } else {
         // 写入文件
         fs.writeFile(filePath, this.apiDocStr, (err) => {
+          this.showTfLoading = false;
           if(err) {
             console.log(err.message)
             return
           }
-          this.showTfLoading = false;
           createDoc({
-            cb: (isError) => {
-              if(!isError) {
+            cb: api_data => {
+              if(!api_data) {
                 this.$message.error("文档格式出错");
               } else {
-                fomartJson(infoJsonPath, () => {
-                  const infoJson = require('../../../static/apiDoc/info.json');
+                fomartJson(api_data, infoJson => {
                   const curApi = infoJson.apiList[0];
                   // 获取初始化数据
                   this.lastObject.baseInfo = {
@@ -266,17 +264,34 @@ export default {
     },
     // 获取动态实体
     getDynamicEntity(data) {
-      const dynamicEntity = [];
+      // 获取哪些是动态组件，没有匹配到type===name的为动态组件
+      // 这里使用减法获取到动态组件，获取到全部组件名-已经匹配到到组件名=动态组件
+      const _dynamicEntity = [];
       this.allEntityName.forEach(item => {
         if(!this.entityName.includes(item)) {
           data.forEach(field => {
             if(field.name === item) {
-              dynamicEntity.push(field)
+              _dynamicEntity.push(field)
             }
           });
         }
       })
-      return dynamicEntity;
+      // format动态组件结构
+      const dynamicEntityList = [];
+      if(_dynamicEntity.length) {
+        for (let i = 0; i < _dynamicEntity.length; i++) {
+          const node = _dynamicEntity[i];
+          for(let j = 0; j < node.fieldList.length; j++) {
+            dynamicEntityList[i] = {
+              [node.name]:{
+                ...node.fieldList[j],
+                nodes: this.getJsonTree(data, node.fieldList[j].type),
+              }
+            };
+          }
+        }
+      }
+      return dynamicEntityList;
     },
     // 将平铺数据转换成树状结构
     getJsonTree(data, type, isGetName=false) {
@@ -284,7 +299,7 @@ export default {
       for (let i = 0; i < data.length; i++) {
         const node = data[i];
         if(!isGetName) {
-          // 已经匹配到type的实体
+          // 获取全部实体名
           if(this.allEntityName.indexOf(node.name) < 0) {
             this.allEntityName.push(node.name);
           }
