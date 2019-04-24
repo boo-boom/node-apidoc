@@ -1,7 +1,5 @@
 
-    /**
-    
-    * @api {post} node_aestheticslab.getLectureAllInfo getLectureAllInfo
+    /** *@api {post} node_aestheticslab.getLectureAllInfo getLectureAllInfo
     *
     * @apiDescription
     * "title":"获取活动详情",

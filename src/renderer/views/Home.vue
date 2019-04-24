@@ -283,7 +283,7 @@ export default {
             this.dialogFormVisible = true;
             this.docFileName = methodName;
             this.docPath = filePaths[0];
-            this.docToFile = doc;
+            this.docToFile = doc.replace(/\s+\*\s/, ' *');
           }
         }
       );
