@@ -1,22 +1,17 @@
 <template>
   <div class="home-container">
     <div class="left">
-      <el-input
-        type="textarea"
-        resize="none"
-        :rows="2"
-        placeholder="请将apiDoc粘贴至此"
-        v-show="!editIsJson"
-        v-model="apiDocStr">
-      </el-input>
+      <el-input type="textarea" resize="none" :rows="2" placeholder="请将apiDoc粘贴至此" v-show="!editIsJson" v-model="apiDocStr"></el-input>
       <div id="javascript-editor" v-show="editIsJson"></div>
       <el-button class="json-doc" size="small" type="warning" icon="el-icon-upload2"  @click="typeTab">{{editIsJson?'JSON模式':'DOC模式'}}</el-button>
       <el-button class="transform-doc" size="small" type="primary" :icon="showTfLoading?'el-icon-loading':'el-icon-sort'" @click="docToJson(editIsJson)"> 文档转换</el-button>
       <el-button class="generate-doc" size="small" type="danger" :icon="showGeLoading?'el-icon-loading':'el-icon-download'" :disabled="!docLoadDone" @click="jsonToDoc"> 文档生成</el-button>
     </div>
     <div class="right">
-      <el-form :model="lastObject" :rules="rules" ref="ruleForm" label-width="100px" class="ruleForm" v-if="docLoadDone">
-        <BaseInfo v-if="JSON.stringify(lastObject.baseInfo)!='{}'" :info="lastObject.baseInfo"/>
+      <div v-if="docLoadDone">
+        <el-form :model="lastObject" :rules="rules" ref="ruleForm" label-width="100px" class="ruleForm">
+          <BaseInfo v-if="JSON.stringify(lastObject.baseInfo)!='{}'" :info="lastObject.baseInfo"/>
+        </el-form>
 
         <div class="title" v-if="lastObject.params.length">
           <span>请求参数</span>
@@ -36,8 +31,9 @@
             </el-row>
           </ul>
           <tree-field :content="lastObject.respStructList" :depth="0" />
+          <DynamicEntity/>
         </div>
-      </el-form>
+      </div>
 
       <div class="doc-load" v-else>
         <div class="desc" v-if="!showTfLoading">
@@ -46,6 +42,7 @@
         </div>
         <i class="el-icon-loading" v-else></i>
       </div>
+
     </div>
   </div>
 </template>
@@ -66,9 +63,10 @@ import { createDoc } from "@/assets/utils/parser.js";
 import BaseInfo from '@/components/BaseInfo';
 import ParamsInfo from '@/components/ParamsInfo';
 import TreeField from "@/components/TreeField";
+import DynamicEntity from "@/components/DynamicEntity";
 export default {
   name: "home-container",
-  components: { BaseInfo, ParamsInfo, TreeField },
+  components: { BaseInfo, ParamsInfo, TreeField, DynamicEntity },
   data() {
     const verApiName = (rule, value, callback) => {
       if (!value) {
@@ -83,14 +81,17 @@ export default {
       apiDocStr: '',        // 获取复制在左侧的文档
       showTfLoading: false, // 正在转换文档
       showGeLoading: false, // 是否可以生成文档
-      docPath: '',
+      docPath: '',          // 保存的路径
+      allEntityName: [],    // 全部动态实体名
+      entityName: [],       // 非动态实体名
       editIsJson: false,    // 是否是导入json
       editor: null,         // json编辑器
       jsonState: null,      // 导入json后数据状态
       lastObject: {         // 最后完成的数据
         baseInfo: {},
         params: [],
-        respStructList: []
+        respStructList: [],
+        dynamicEntity: [],
       },
       rules: {
         'baseInfo.methodName': [{ required: true, validator: verApiName, trigger: "change" }],
@@ -103,7 +104,7 @@ export default {
     }
   },
   mounted() {
-    // this.apiDocStr = apiDocStr;
+    this.apiDocStr = apiDocStr;
     this.$nextTick(() => {
       if (!this.editor) {
         this.editor = ace.edit("javascript-editor");
@@ -220,6 +221,7 @@ export default {
                   // 获取参数
                   this.lastObject.params = [];
                   for(let i = 0; i < curApi.parameterInfoList.length; i++) {
+                    curApi.parameterInfoList[i].nodes = [];
                     this.lastObject.params.push(curApi.parameterInfoList[i])
                     if(curApi.reqStructList.length) {
                       this.$set(this.lastObject.params[i], 'nodes', this.getJsonTree(curApi.reqStructList, this.lastObject.params[i].type));
@@ -227,6 +229,8 @@ export default {
                   }
                   // 获取返回数据
                   this.lastObject.respStructList = this.getJsonTree(curApi.respStructList, curApi.returnType);
+                  // 获取动态实体
+                  this.lastObject.dynamicEntity = this.getDynamicEntity(curApi.respStructList);
                   this.$message({
                     showClose: true,
                     message: "创建转换成功",
@@ -256,17 +260,44 @@ export default {
         }
       );
     },
+    // 切换状态
     typeTab() {
       this.editIsJson = !this.editIsJson;
     },
+    // 获取动态实体
+    getDynamicEntity(data) {
+      const dynamicEntity = [];
+      this.allEntityName.forEach(item => {
+        if(!this.entityName.includes(item)) {
+          data.forEach(field => {
+            if(field.name === item) {
+              dynamicEntity.push(field)
+            }
+          });
+        }
+      })
+      return dynamicEntity;
+    },
     // 将平铺数据转换成树状结构
-    getJsonTree(data, type) {
+    getJsonTree(data, type, isGetName=false) {
       const itemArr = [];
       for (let i = 0; i < data.length; i++) {
         const node = data[i];
-        if (node.name === type) {
+        if(!isGetName) {
+          // 已经匹配到type的实体
+          if(this.allEntityName.indexOf(node.name) < 0) {
+            this.allEntityName.push(node.name);
+          }
+        }
+        if (node.name == type) {
           for (let j = 0; j < node.fieldList.length; j++) {
             const nodeType = node.fieldList[j].type;
+            if(!isGetName) {
+              // 已经匹配到type的实体
+              if(this.entityName.indexOf(node.name) < 0) {
+                this.entityName.push(node.name);
+              }
+            }
             const newNode = {
               ...node.fieldList[j],
               nanoid: nanoid(),

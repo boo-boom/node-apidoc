@@ -1,63 +1,64 @@
+
 /**
- * @block [node_aestheticslab.searchLectureList]
- * @api {post} aestheticslab.searchLectureList,node_aestheticslab.searchLectureList searchLectureList
+ * @api {post} node_aestheticslab.getLectureAllInfo getLectureAllInfo
+ *
+ *
  * @apiDescription
- * "title":"搜索门店活动列表",
- *
- * "detail":null,
- *
- * "encryptionOnly":false,
- *
- * "groupOwner":"熊志强",
- *
- * "methodOwner":"熊志强",
- *
- * "needVerify":false,
- *
- * "returnType":"Api_AESTHETICSLAB_searchLectureList_NodeResp",
- *
+ * "title":"获取活动详情",
+ * "groupOwner":"王柯迪",
+ * "methodOwner":"千云锋",
  * "securityLevel":"Anonym",
+ * "returnType":"Api_AESTHETICSLAB_LectureAllInfo_NodeResp",
+ * "state":"OPEN",
+ * "detail": null,
+ * "encryptionOnly":false,
+ * "needVerify":false
  *
- * "state":"OPEN"
  *
  * @apiGroup node_aestheticslab
  *
- * @block [参数列表]
- * @apiParam {string} aaaaa test11111123123213
- * @apiParam {Api_AESTHETICSLAB_LectureListSearchParam} lectureListSearchParam 活动列表搜索参数
- * @apiParam {Api_AESTHETICSLAB_PageParameter} pageParameter 分页参数
  *
- * @block [Api_AESTHETICSLAB_LectureListSearchParam]
- * @apiParam (Api_AESTHETICSLAB_LectureListSearchParam) {int} storeId 门店ID
- * @apiParam (Api_AESTHETICSLAB_LectureListSearchParam) {string} lectureType 活动类型 END 往期讲座, NEAR_FUTURE 近期讲座, UNDERWAY 进行中讲座
+ * @apiParam {long} lectureId 活动ID
  *
- * @block [Api_AESTHETICSLAB_PageParameter]
- * @apiParam (Api_AESTHETICSLAB_PageParameter) {int} offset 记录偏移量
- * @apiParam (Api_AESTHETICSLAB_PageParameter) {int} limit 返回记录最大数量
+ * @block [Api_AESTHETICSLAB_LectureAllInfo_NodeResp]
+ * @apiSuccess (Api_AESTHETICSLAB_LectureAllInfo_NodeResp) {Api_COMMUNITYPOST_NodePostInfo} postContent 活动内容主体
+ * @apiSuccess (Api_AESTHETICSLAB_LectureAllInfo_NodeResp) {Api_Aaa_Bbb} postContentqq111 活动内容主体111
  *
- * @apiParamExample
- * [返回值]
- * @block [Api_AESTHETICSLAB_searchLectureList_NodeResp] 返回主体
- * @apiSuccess (Api_AESTHETICSLAB_searchLectureList_NodeResp) {list[Api_AESTHETICSLAB_NodeLectureListItem]} lectureListItemList 活动列表数据
- * @apiSuccess (Api_AESTHETICSLAB_searchLectureList_NodeResp) {int} total 活动总数
- * @apiSuccess (Api_AESTHETICSLAB_searchLectureList_NodeResp) {int} sigUping 报名中的活动数量
- * @apiSuccess (Api_AESTHETICSLAB_searchLectureList_NodeResp) {int} lectureUnder 进行中的场次数量
- * @apiSuccess (Api_AESTHETICSLAB_searchLectureList_NodeResp) {List[Api_AESTHETICSLAB_NodeLectureStoreInfo]} store 活动门店列表
  *
- * @block [Api_AESTHETICSLAB_NodeLectureStoreInfo] 活动门店列表实体
- * @apiSuccess (Api_AESTHETICSLAB_NodeLectureStoreInfo) {int} id 门店ID
- * @apiSuccess (Api_AESTHETICSLAB_NodeLectureStoreInfo) {string} name 门店名称
- * @apiSuccess (Api_AESTHETICSLAB_NodeLectureStoreInfo) {string} nameAbbreviation 门店简称
- * @apiSuccess (Api_AESTHETICSLAB_NodeLectureStoreInfo) {boolean} isOpenedRecently 是否是新开店（一个月内开的店)
- * 
- * @block [Api_AESTHETICSLAB_NodeMaterialImageInfo] 缩略图实体
- * @apiSuccess (Api_AESTHETICSLAB_NodeMaterialImageInfo) {int} id 图片素材ID
- * @apiSuccess (Api_AESTHETICSLAB_NodeMaterialImageInfo) {string} url 	图片地址
- * @apiSuccess (Api_AESTHETICSLAB_NodeMaterialImageInfo) {short} height 图片高度
- * @apiSuccess (Api_AESTHETICSLAB_NodeMaterialImageInfo) {short} lectureId 图片宽度
+ * @block [Api_COMMUNITYPOST_NodePostInfo]
+ * @apiSuccess (Api_COMMUNITYPOST_NodePostInfo) {list[Api_DynamicEntity]} dynamicEntityList 内容信息 本字段为动态数据类型, 可能类型为以下种类:SegmentInfo, TextInfo, VideoInfo, ImageInfo,
  *
- * @block [Api_AESTHETICSLAB_NodeRoundSimpleInfo] 场次信息实体
- * 
- * 
  *
+ * @block [Api_DynamicEntity]
+ * @apiSuccess (Api_DynamicEntity) {[T]} entity 动态实体11111
+ * @apiSuccess (Api_DynamicEntity) {string} typeName 实体名123123
+ *
+ *
+ * @block [Api_COMMUNITYPOST_ImageInfo]
+ * @apiSuccess (Api_COMMUNITYPOST_ImageInfo) {int} id 图片素材ID
+ * @apiSuccess (Api_COMMUNITYPOST_ImageInfo) {string} url 图片链接
+ * @apiSuccess (Api_COMMUNITYPOST_ImageInfo) {int} width 图宽度
+ * @apiSuccess (Api_COMMUNITYPOST_ImageInfo) {int} height 图高度
+ * @apiSuccess (Api_COMMUNITYPOST_ImageInfo) {list[Api_COMMUNITYPOST_NodeTagInfo]} tagInfoList 标签信息
+ * @apiSuccess (Api_COMMUNITYPOST_ImageInfo) {string} miniprogramAppId 小程序appId
+ * @apiSuccess (Api_COMMUNITYPOST_ImageInfo) {string} linkUrl 跳转链接
+ *
+ *
+ * @block [Api_COMMUNITYPOST_SegmentInfo]
+ * @apiSuccess (Api_COMMUNITYPOST_SegmentInfo) {Api_Aaa_Bbb} aaa bbb链接
+ *
+ *
+ * @block [Api_Aaa_Bbb]
+ * @apiSuccess (Api_Aaa_Bbb) {Api_Ccc_Ddd} url222 seg2222
+ *
+ *
+ * @block [Api_Ccc_Ddd]
+ * @apiSuccess (Api_Ccc_Ddd) {string} url111 segment链接111
+ *
+ *
+ * @block [Api_COMMUNITYPOST_TextInfo]
+ * @apiSuccess (Api_COMMUNITYPOST_TextInfo) {string} text 文字
+ *
+ *
+ * @apiError (Error_msg) {PARAM_ERROR_NUMBER_4000003} 4000003 参数错误
  */

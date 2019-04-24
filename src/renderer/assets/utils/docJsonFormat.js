@@ -114,7 +114,7 @@ function formartStructList(obj, json, mock) {
             ret.type = match[1]
           }
           if (ret.type == 'T') {
-            ret.type = '<T>'
+            ret.type = '[T]'
           }
           return ret
         } catch (err) {
