@@ -57,13 +57,6 @@ export default {
       type: Number,
       default: 0,
     },
-    tree: {
-      type: String,
-      default: ''
-    },
-  },
-  data() {
-    return {};
   },
   methods: {
     toggleShowChild(item) {

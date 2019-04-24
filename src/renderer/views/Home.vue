@@ -9,15 +9,16 @@
     </div>
     <div class="right">
       <div v-if="docLoadDone">
+        <!-- 基础信息 -->
         <el-form :model="lastObject" :rules="rules" ref="ruleForm" label-width="100px" class="ruleForm">
           <BaseInfo v-if="JSON.stringify(lastObject.baseInfo)!='{}'" :info="lastObject.baseInfo"/>
         </el-form>
-
+        <!-- 请求参数 -->
         <div class="title" v-if="lastObject.params.length">
           <span>请求参数</span>
         </div>
         <ParamsInfo v-if="lastObject.params.length" :content="lastObject.params" :depth="0"/>
-
+        <!-- 返回数据 -->
         <div class="title" style="paddingTop:20px;" v-if="lastObject.respStructList.length">
           <span>返回数据</span>
         </div>
@@ -31,7 +32,13 @@
             </el-row>
           </ul>
           <tree-field :content="lastObject.respStructList" :depth="0" />
-          <DynamicEntity/>
+          <!-- 动态实体 -->
+          <div v-if="lastObject.dynamicEntity.length">
+            <div class="title" style="paddingTop:20px;">
+              <span>动态实体 [修改需谨慎]</span>
+            </div>
+            <DynamicEntity :content="lastObject.dynamicEntity" :depth="0" />
+          </div>
         </div>
       </div>
 
@@ -283,10 +290,14 @@ export default {
           const node = _dynamicEntity[i];
           for(let j = 0; j < node.fieldList.length; j++) {
             dynamicEntityList[i] = {
-              [node.name]:{
-                ...node.fieldList[j],
-                nodes: this.getJsonTree(data, node.fieldList[j].type),
-              }
+              ...node.fieldList[j],
+              nanoid: nanoid(),
+              showChild: false,
+              type: node.fieldList[j].isList
+                ? `List[${node.fieldList[j].type}]`
+                : node.fieldList[j].type,
+              dynamicEntityName: node.name,
+              nodes: this.getJsonTree(data, node.fieldList[j].type),
             };
           }
         }
@@ -445,6 +456,9 @@ export default {
           padding-right: 10px;
         }
       }
+    }
+    .dynamic-entity-title {
+      font-size: 14px;
     }
   }
 }
