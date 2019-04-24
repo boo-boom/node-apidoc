@@ -1,6 +1,6 @@
 
 /**
- * @api {post} node_aestheticslab.getLectureAllInfo getLectureAllInfo
+ * @api {post} aestheticslab.getLectureAllInfo getLectureAllInfo
  *
  *
  * @apiDescription
@@ -15,7 +15,7 @@
  * "needVerify":false
  *
  *
- * @apiGroup node_aestheticslab
+ * @apiGroup aestheticslab
  *
  *
  * @apiParam {long} lectureId 活动ID

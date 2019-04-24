@@ -37,7 +37,7 @@
             <div class="title" style="paddingTop:20px;">
               <span>动态实体 [修改需谨慎]</span>
             </div>
-            <DynamicEntity :content="lastObject.dynamicEntity" :depth="0" />
+            <tree-field type="dynamic" :content="lastObject.dynamicEntity" :depth="0" />
           </div>
         </div>
       </div>
@@ -51,6 +51,17 @@
       </div>
 
     </div>
+
+    <el-dialog title="修改文件名" :visible.sync="dialogFormVisible">
+      <el-input v-model="docFileName" autocomplete="off">
+        <template slot="append">.js</template>
+      </el-input>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="saveDocToFile">确 定</el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -60,6 +71,7 @@ const path = require('path');
 const fs = require('fs');
 const { fomartJson } = require('@/assets/utils/docJsonFormat')
 const filePath = path.resolve(__dirname, '../../../static/example/apiDocStr.js');
+import { saveDoc } from '@/assets/utils/saveDoc.js';
 import { remote } from "electron";
 import nanoid from 'nanoid';
 import generateSchema from "generate-schema/src/schemas/json.js";
@@ -69,10 +81,10 @@ import { createDoc } from "@/assets/utils/parser.js";
 import BaseInfo from '@/components/BaseInfo';
 import ParamsInfo from '@/components/ParamsInfo';
 import TreeField from "@/components/TreeField";
-import DynamicEntity from "@/components/DynamicEntity";
+
 export default {
   name: "home-container",
-  components: { BaseInfo, ParamsInfo, TreeField, DynamicEntity },
+  components: { BaseInfo, ParamsInfo, TreeField },
   data() {
     const verApiName = (rule, value, callback) => {
       if (!value) {
@@ -88,11 +100,14 @@ export default {
       showTfLoading: false, // 正在转换文档
       showGeLoading: false, // 是否可以生成文档
       docPath: '',          // 保存的路径
+      docToFile: '',        // 转换成apiDoc所需要的数据
       allEntityName: [],    // 全部动态实体名
       entityName: [],       // 非动态实体名
       editIsJson: false,    // 是否是导入json
       editor: null,         // json编辑器
       jsonState: null,      // 导入json后数据状态
+      docFileName: '',      // 保存文档时的文件名
+      dialogFormVisible: false, // 保存文档时输入文件名的dialog
       lastObject: {         // 最后完成的数据
         baseInfo: {},
         params: [],
@@ -188,7 +203,7 @@ export default {
               name: "",
               nodes: [],
               sequence: "",
-              type: "object",
+              type: "string",
             }];
             // console.log(this.getJsonSchemaTree(this.jsonState.schema.properties))
           }
@@ -221,7 +236,11 @@ export default {
                     groupOwner: curApi.groupOwner,
                     methodOwner: curApi.methodOwner,
                     state: curApi.state,
-                    securityLevel: curApi.securityLevel
+                    securityLevel: curApi.securityLevel,
+                    detail: curApi.detail,
+                    encryptionOnly: curApi.encryptionOnly,
+                    needVerify: curApi.needVerify,
+                    returnType: curApi.returnType,
                   }
                   // 获取参数
                   this.lastObject.params = [];
@@ -248,7 +267,7 @@ export default {
         })
       }
     },
-    // 保存修改后的文档
+    // 获取修改后的文档
     jsonToDoc() {
       this.showGeLoading = true;
       console.log(this.lastObject)
@@ -260,10 +279,64 @@ export default {
         filePaths => {
           if (filePaths) {
             this.showGeLoading = false;
-            console.log(filePaths[0])
+            const { doc, methodName} = saveDoc(this.lastObject);
+            this.dialogFormVisible = true;
+            this.docFileName = methodName;
+            this.docPath = filePaths[0];
+            this.docToFile = doc;
           }
         }
       );
+    },
+    // 保存修改后文档至文件中
+    saveDocToFile() {
+      this.docPath = `${this.docPath}/${this.docFileName}.js`;
+      if(/\.js$/.test(this.docPath)) {
+        this.dialogFormVisible = false;
+        if (fs.existsSync(this.docPath)) {
+          this.$confirm('该文件已存在, 是否覆盖?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'error'
+          }).then(() => {
+            fs.writeFileSync(this.docPath, this.docToFile);
+            this.$message({
+              type: 'success',
+              message: '覆盖成功!'
+            });
+          }).catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消覆盖'
+            });
+          });
+        } else {
+          this.$confirm('是否创建该文件?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            fs.writeFileSync(this.docPath, this.docToFile);
+            this.$message({
+              type: 'success',
+              message: '创建成功!'
+            });
+          }).catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消创建'
+            });
+          });
+        }
+      } else {
+        this.$notify.error({
+          title: "错误",
+          message: '文件名错误'
+        });
+      }
+
+      // fs.writeFileSync(this.docPath, doc);
+      console.log(this.docPath, this.docFileName, this.docToFile)
     },
     // 切换状态
     typeTab() {
