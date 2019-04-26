@@ -18,7 +18,8 @@
  * @apiGroup aestheticslab
  *
  *
- * @apiParam {long} lectureId 活动ID
+ * @apiParam {long} lectureId1 活动ID111
+ * @apiParam {long} lectureId2 活动ID222
  *
  * @block [Api_AESTHETICSLAB_LectureAllInfo_NodeResp]
  * @apiSuccess (Api_AESTHETICSLAB_LectureAllInfo_NodeResp) {Api_COMMUNITYPOST_NodePostInfo} postContent 活动内容主体
@@ -27,6 +28,8 @@
  *
  * @block [Api_COMMUNITYPOST_NodePostInfo]
  * @apiSuccess (Api_COMMUNITYPOST_NodePostInfo) {list[Api_DynamicEntity]} dynamicEntityList 内容信息 本字段为动态数据类型, 可能类型为以下种类:SegmentInfo, TextInfo, VideoInfo, ImageInfo,
+ * @apiSuccess (Api_COMMUNITYPOST_NodePostInfo) {long} long1 测试1
+ * @apiSuccess (Api_COMMUNITYPOST_NodePostInfo) {long} long2 测试2
  *
  *
  * @block [Api_DynamicEntity]
@@ -50,14 +53,19 @@
  *
  * @block [Api_Aaa_Bbb]
  * @apiSuccess (Api_Aaa_Bbb) {Api_Ccc_Ddd} url222 seg2222
+ * @apiSuccess (Api_Aaa_Bbb) {Api_Ccc_Ddd} url333 seg333
+ * @apiSuccess (Api_Aaa_Bbb) {Api_Ccc_Ddd} url444 seg4444
  *
  *
  * @block [Api_Ccc_Ddd]
  * @apiSuccess (Api_Ccc_Ddd) {string} url111 segment链接111
+ * @apiSuccess (Api_Ccc_Ddd) {string} url222 segment链接222
  *
  *
  * @block [Api_COMMUNITYPOST_TextInfo]
  * @apiSuccess (Api_COMMUNITYPOST_TextInfo) {string} text 文字
+ * @apiSuccess (Api_COMMUNITYPOST_TextInfo) {string} text 文字1
+ * @apiSuccess (Api_COMMUNITYPOST_TextInfo) {string} text 文字2
  *
  *
  * @apiError (Error_msg) {PARAM_ERROR_NUMBER_4000003} 4000003 参数错误

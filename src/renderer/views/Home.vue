@@ -78,6 +78,7 @@ import generateSchema from "generate-schema/src/schemas/json.js";
 import ace from "brace";
 import "brace/mode/json";
 import { createDoc } from "@/assets/utils/parser.js";
+import { nodeType, methodName } from "@/assets/utils/nodes.js";
 import BaseInfo from '@/components/BaseInfo';
 import ParamsInfo from '@/components/ParamsInfo';
 import TreeField from "@/components/TreeField";
@@ -231,7 +232,7 @@ export default {
                   const curApi = infoJson.apiList[0];
                   // 获取初始化数据
                   this.lastObject.baseInfo = {
-                    methodName: curApi.methodName,
+                    methodName: `${methodName(curApi.methodName, true)}`,
                     description: curApi.description,
                     groupOwner: curApi.groupOwner,
                     methodOwner: curApi.methodOwner,
@@ -240,7 +241,7 @@ export default {
                     detail: curApi.detail,
                     encryptionOnly: curApi.encryptionOnly,
                     needVerify: curApi.needVerify,
-                    returnType: curApi.returnType,
+                    returnType: nodeType(curApi.returnType),
                   }
                   // 获取参数
                   this.lastObject.params = [];
@@ -367,14 +368,15 @@ export default {
               nanoid: nanoid(),
               showChild: false,
               type: node.fieldList[j].isList
-                ? `List[${node.fieldList[j].type}]`
-                : node.fieldList[j].type,
-              dynamicEntityName: node.name,
+                ? `List[${nodeType(node.fieldList[j].type)}]`
+                : nodeType(node.fieldList[j].type),
+              entity: node.name,
               nodes: this.getJsonTree(data, node.fieldList[j].type),
             };
           }
         }
       }
+      console.log(dynamicEntityList)
       return dynamicEntityList;
     },
     // 将平铺数据转换成树状结构
@@ -390,7 +392,7 @@ export default {
         }
         if (node.name == type) {
           for (let j = 0; j < node.fieldList.length; j++) {
-            const nodeType = node.fieldList[j].type;
+            const _nodeType = node.fieldList[j].type;
             if(!isGetName) {
               // 已经匹配到type的实体
               if(this.entityName.indexOf(node.name) < 0) {
@@ -401,10 +403,11 @@ export default {
               ...node.fieldList[j],
               nanoid: nanoid(),
               showChild: false,
+              entity: nodeType(type),
               type: node.fieldList[j].isList
-                ? `List[${node.fieldList[j].type}]`
-                : node.fieldList[j].type,
-              nodes: this.getJsonTree(data, nodeType)
+                ? `List[${nodeType(node.fieldList[j].type)}]`
+                : nodeType(node.fieldList[j].type),
+              nodes: this.getJsonTree(data, _nodeType)
             };
             itemArr.push(newNode);
           }

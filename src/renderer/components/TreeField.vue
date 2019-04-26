@@ -1,7 +1,7 @@
 <template>
   <div class="tree-field">
     <div v-for="(item, index) in content" :key="item.nanoid">
-      <p class="dynamicEntityName" v-if="type=='dynamic'">{{item.dynamicEntityName}}</p>
+      <p class="dynamicEntityName" v-if="type=='dynamic'">{{item.entity}}</p>
       <el-row :gutter="10">
         <el-col class="indent" :span="11" :style="{paddingLeft:`${depth * 30}px`}">
           <i :class="[`el-icon-caret-${item.showChild?'top':'bottom'}`]" v-if="item.nodes.length" @click="toggleShowChild(item)"></i>

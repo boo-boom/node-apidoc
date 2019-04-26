@@ -18,7 +18,7 @@
   * @apiParam {long} lectureId2 活动ID222
   *
   * @block [Api_NodeAESTHETICSLAB_LectureAllInfo_NodeResp]
-  * @apiSuccess (Api_NodeAESTHETICSLAB_LectureAllInfo_NodeResp) {Api_NodeCOMMUNITYPOST_NodePostInfo} postContent 活动内容主体
+  * @apiSuccess (Api_NodeAESTHETICSLAB_LectureAllInfo_NodeResp) {Api_NodeCOMMUNITYPOST_NodePostInfo} postContent1231231231231123 活动内容主体
   * @apiSuccess (Api_NodeAESTHETICSLAB_LectureAllInfo_NodeResp) {Api_NodeAaa_Bbb} postContentqq111 活动内容主体111
   *
   * @block [Api_NodeCOMMUNITYPOST_NodePostInfo]

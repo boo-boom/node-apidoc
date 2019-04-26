@@ -1,3 +1,5 @@
+import { insertStr } from '@/assets/utils/util.js'
+
 export const nodesPath = (tree='0,', dir) => {
   // 将递归的层级进行转换
   const _tree = tree.split(",");
@@ -15,4 +17,28 @@ export const nodesPath = (tree='0,', dir) => {
     evalStr,
     nodesLen: _tree.length,
   };
+}
+
+export const nodeType = (str) => {
+  let newReturnType = '';
+  if(/^Api_/.test(str) && str != 'Api_DynamicEntity') {
+    if(!/^Api_Node/.test(str)) {
+      newReturnType = insertStr(str, 4, 'Node');
+    }
+    return newReturnType
+  }
+  return str
+}
+
+export const methodName = (str, isStr=false) => {
+  if(isStr) {
+    if(!/^node_/.test(str)) {
+      return insertStr(str, 0, 'node_');
+    }
+  } else {
+    if(!/^node_/.test(str)) {
+      return insertStr(str, 0, 'node_').split('.');
+    }
+    return str.split('.')
+  }
 }
