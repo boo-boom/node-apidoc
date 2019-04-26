@@ -1,10 +1,8 @@
 <template>
   <div class="home-container">
     <div class="left">
-      <el-input type="textarea" resize="none" :rows="2" placeholder="请将apiDoc粘贴至此" v-show="!editIsJson" v-model="apiDocStr"></el-input>
-      <div id="javascript-editor" v-show="editIsJson"></div>
-      <el-button class="json-doc" size="small" type="warning" icon="el-icon-upload2"  @click="typeTab">{{editIsJson?'JSON模式':'DOC模式'}}</el-button>
-      <el-button class="transform-doc" size="small" type="primary" :icon="showTfLoading?'el-icon-loading':'el-icon-sort'" @click="docToJson(editIsJson)"> 文档转换</el-button>
+      <el-input type="textarea" resize="none" :rows="2" placeholder="请将apiDoc粘贴至此" v-model="apiDocStr"></el-input>
+      <el-button class="transform-doc" size="small" type="primary" :icon="showTfLoading?'el-icon-loading':'el-icon-sort'" @click="docToJson"> 文档转换</el-button>
       <el-button class="generate-doc" size="small" type="danger" :icon="showGeLoading?'el-icon-loading':'el-icon-download'" :disabled="!docLoadDone" @click="jsonToDoc"> 文档生成</el-button>
     </div>
     <div class="right">
@@ -14,31 +12,16 @@
           <BaseInfo v-if="JSON.stringify(lastObject.baseInfo)!='{}'" :info="lastObject.baseInfo"/>
         </el-form>
         <!-- 请求参数 -->
-        <div class="title" v-if="lastObject.params.length">
+        <div class="title" v-if="lastObject.params.parameter.length">
           <span>请求参数</span>
         </div>
-        <ParamsInfo v-if="lastObject.params.length" :content="lastObject.params" :depth="0"/>
+        <ParamsInfo v-if="lastObject.params.parameter.length" :content="lastObject.params.parameter"/>
         <!-- 返回数据 -->
         <div class="title" style="paddingTop:20px;" v-if="lastObject.respStructList.length">
           <span>返回数据</span>
         </div>
         <div class="json-view" v-if="lastObject.respStructList.length">
-          <ul class="json-title">
-            <el-row :gutter="10">
-              <el-col :span="11" class="indent">字段名</el-col>
-              <el-col :span="7">类型</el-col>
-              <el-col :span="4">描述</el-col>
-              <el-col :span="2">操作</el-col>
-            </el-row>
-          </ul>
-          <tree-field :content="lastObject.respStructList" :depth="0" />
-          <!-- 动态实体 -->
-          <div v-if="lastObject.dynamicEntity.length">
-            <div class="title" style="paddingTop:20px;">
-              <span>动态实体 [修改需谨慎]</span>
-            </div>
-            <tree-field type="dynamic" :content="lastObject.dynamicEntity" :depth="0" />
-          </div>
+          <tree-field :content="lastObject.respStructList" />
         </div>
       </div>
 
@@ -74,9 +57,6 @@ const filePath = path.resolve(__dirname, '../../../static/example/apiDocStr.js')
 import { saveDoc } from '@/assets/utils/saveDoc.js';
 import { remote } from "electron";
 import nanoid from 'nanoid';
-import generateSchema from "generate-schema/src/schemas/json.js";
-import ace from "brace";
-import "brace/mode/json";
 import { createDoc } from "@/assets/utils/parser.js";
 import { nodeType, methodName } from "@/assets/utils/nodes.js";
 import BaseInfo from '@/components/BaseInfo';
@@ -102,18 +82,15 @@ export default {
       showGeLoading: false, // 是否可以生成文档
       docPath: '',          // 保存的路径
       docToFile: '',        // 转换成apiDoc所需要的数据
-      allEntityName: [],    // 全部动态实体名
-      entityName: [],       // 非动态实体名
-      editIsJson: false,    // 是否是导入json
-      editor: null,         // json编辑器
-      jsonState: null,      // 导入json后数据状态
       docFileName: '',      // 保存文档时的文件名
       dialogFormVisible: false, // 保存文档时输入文件名的dialog
       lastObject: {         // 最后完成的数据
         baseInfo: {},
-        params: [],
+        params: {
+          parameter: [],
+          reqStruct: []
+        },
         respStructList: [],
-        dynamicEntity: [],
       },
       rules: {
         'baseInfo.methodName': [{ required: true, validator: verApiName, trigger: "change" }],
@@ -127,146 +104,79 @@ export default {
   },
   mounted() {
     this.apiDocStr = apiDocStr;
-    this.$nextTick(() => {
-      if (!this.editor) {
-        this.editor = ace.edit("javascript-editor");
-        this.editor.getSession().setMode("ace/mode/json");
-        this.editor.getSession().on("change", e => {
-          // 捕获json格式错误信息
-          const jsonState = {};
-          try {
-            const value = this.editor.getValue();
-            const obj = JSON.parse(value);
-            jsonState.data = obj;
-            jsonState.format = true;
-          } catch (err) {
-            jsonState.format = false;
-            jsonState.forat = err.message;
-          }
-          this.jsonState = jsonState;
-          this.editor.clearSelection();
-        });
-      }
-    });
+    this.docToJson()
   },
-  // watch: {
-  //   lastObject: {
-  //     deep: true,
-  //     handler(val, oldVal) {
-  //       console.log(val.params)
-  //     }
-  //   }
-  // },
   computed: {
     // 文档转化结束
     docLoadDone() {
-      if(!this.editIsJson) {
-        if(JSON.stringify(this.lastObject.baseInfo) === '{}' || !this.lastObject.respStructList.length) {
-          return false
-        }
-      } else {
-        if(!this.lastObject.respStructList.length) {
-          return false
-        }
+      if(!this.lastObject.respStructList.length) {
+        return false
       }
       return true
     }
   },
   methods: {
     // 转换文档
-    docToJson(isJson) {
+    docToJson() {
       this.showTfLoading = true;
-      if(isJson) {
-        const editorValue = this.editor.getValue();
-        if (editorValue) {
-          if (!this.jsonState.format) {
-            this.$notify.error({
-              title: "错误",
-              message: `json数据格式有误：${this.jsonState.forat}`
-            });
-          } else {
-            this.jsonState.schema = generateSchema(this.jsonState.data);
-            this.lastObject.respStructList = this.getJsonSchemaTree(this.jsonState.schema.properties);
-            this.lastObject.baseInfo = {
-              methodName: '',
-              description: '',
-              groupOwner: '',
-              methodOwner: '',
-              securityLevel: '',
-              state: ''
-            };
-            this.lastObject.params = [{
-              description: "请求参数",
-              injectOnly: false,
-              isList: false,
-              isRequired: true,
-              isRsaEncrypt: false,
-              name: "",
-              nodes: [],
-              sequence: "",
-              type: "string",
-            }];
-            // console.log(this.getJsonSchemaTree(this.jsonState.schema.properties))
-          }
-        } else {
-          this.$notify.error({
-            title: "错误",
-            message: "json不能为空"
-          });
-        }
+      // 写入文件
+      fs.writeFile(filePath, this.apiDocStr, (err) => {
         this.showTfLoading = false;
-      } else {
-        // 写入文件
-        fs.writeFile(filePath, this.apiDocStr, (err) => {
-          this.showTfLoading = false;
-          if(err) {
-            console.log(err.message)
-            return
-          }
-          createDoc({
-            cb: api_data => {
-              if(!api_data) {
-                this.$message.error("文档格式出错");
-              } else {
-                fomartJson(api_data, infoJson => {
-                  const curApi = infoJson.apiList[0];
-                  // 获取初始化数据
-                  this.lastObject.baseInfo = {
-                    methodName: `${methodName(curApi.methodName, true)}`,
-                    description: curApi.description,
-                    groupOwner: curApi.groupOwner,
-                    methodOwner: curApi.methodOwner,
-                    state: curApi.state,
-                    securityLevel: curApi.securityLevel,
-                    detail: curApi.detail,
-                    encryptionOnly: curApi.encryptionOnly,
-                    needVerify: curApi.needVerify,
-                    returnType: nodeType(curApi.returnType),
-                  }
-                  // 获取参数
-                  this.lastObject.params = [];
-                  for(let i = 0; i < curApi.parameterInfoList.length; i++) {
-                    curApi.parameterInfoList[i].nodes = [];
-                    this.lastObject.params.push(curApi.parameterInfoList[i])
-                    if(curApi.reqStructList.length) {
-                      this.$set(this.lastObject.params[i], 'nodes', this.getJsonTree(curApi.reqStructList, this.lastObject.params[i].type));
-                    }
-                  }
-                  // 获取返回数据
-                  this.lastObject.respStructList = this.getJsonTree(curApi.respStructList, curApi.returnType);
-                  // 获取动态实体
-                  this.lastObject.dynamicEntity = this.getDynamicEntity(curApi.respStructList);
-                  this.$message({
-                    showClose: true,
-                    message: "创建转换成功",
-                    type: "success"
-                  });
+        if(err) {
+          console.log(err.message)
+          return
+        }
+        createDoc({
+          cb: api_data => {
+            if(!api_data) {
+              this.$message.error("文档格式出错");
+            } else {
+              fomartJson(api_data, infoJson => {
+                const curApi = infoJson.apiList[0];
+                // 获取初始化数据
+                this.lastObject.baseInfo = {
+                  methodName: `${methodName(curApi.methodName, true)}`,
+                  description: curApi.description,
+                  groupOwner: curApi.groupOwner,
+                  methodOwner: curApi.methodOwner,
+                  state: curApi.state,
+                  securityLevel: curApi.securityLevel,
+                  detail: curApi.detail,
+                  encryptionOnly: curApi.encryptionOnly,
+                  needVerify: curApi.needVerify,
+                  returnType: nodeType(curApi.returnType),
+                }
+                // 获取参数
+                this.lastObject.params = {
+                  parameter: this.addNanoId(curApi.parameterInfoList),
+                  reqStruct: this.addNanoId(curApi.reqStructList)
+                }
+
+                console.log(curApi)
+                // 获取返回数据
+                this.lastObject.respStructList = this.addNanoId(curApi.respStructList);
+                this.$message({
+                  showClose: true,
+                  message: "创建转换成功",
+                  type: "success"
                 });
-              }
+              });
             }
-          });
-        })
-      }
+          }
+        });
+      })
+    },
+    addNanoId(data) {
+      console.log(data)
+      data.forEach(item => {
+        item.nanoid = nanoid();
+        if(item.fieldList && item.fieldList.length) {
+          item.fieldList.forEach(field => {
+            field.nanoid = nanoid();
+          })
+        }
+      });
+      return data;
     },
     // 获取修改后的文档
     jsonToDoc() {
@@ -335,107 +245,8 @@ export default {
           message: '文件名错误'
         });
       }
-
       // fs.writeFileSync(this.docPath, doc);
       console.log(this.docPath, this.docFileName, this.docToFile)
-    },
-    // 切换状态
-    typeTab() {
-      this.editIsJson = !this.editIsJson;
-    },
-    // 获取动态实体
-    getDynamicEntity(data) {
-      // 获取哪些是动态组件，没有匹配到type===name的为动态组件
-      // 这里使用减法获取到动态组件，获取到全部组件名-已经匹配到到组件名=动态组件
-      const _dynamicEntity = [];
-      this.allEntityName.forEach(item => {
-        if(!this.entityName.includes(item)) {
-          data.forEach(field => {
-            if(field.name === item) {
-              _dynamicEntity.push(field)
-            }
-          });
-        }
-      })
-      // format动态组件结构
-      const dynamicEntityList = [];
-      if(_dynamicEntity.length) {
-        for (let i = 0; i < _dynamicEntity.length; i++) {
-          const node = _dynamicEntity[i];
-          for(let j = 0; j < node.fieldList.length; j++) {
-            dynamicEntityList[i] = {
-              ...node.fieldList[j],
-              nanoid: nanoid(),
-              showChild: false,
-              type: node.fieldList[j].isList
-                ? `List[${nodeType(node.fieldList[j].type)}]`
-                : nodeType(node.fieldList[j].type),
-              entity: node.name,
-              nodes: this.getJsonTree(data, node.fieldList[j].type),
-            };
-          }
-        }
-      }
-      console.log(dynamicEntityList)
-      return dynamicEntityList;
-    },
-    // 将平铺数据转换成树状结构
-    getJsonTree(data, type, isGetName=false) {
-      const itemArr = [];
-      for (let i = 0; i < data.length; i++) {
-        const node = data[i];
-        if(!isGetName) {
-          // 获取全部实体名
-          if(this.allEntityName.indexOf(node.name) < 0) {
-            this.allEntityName.push(node.name);
-          }
-        }
-        if (node.name == type) {
-          for (let j = 0; j < node.fieldList.length; j++) {
-            const _nodeType = node.fieldList[j].type;
-            if(!isGetName) {
-              // 已经匹配到type的实体
-              if(this.entityName.indexOf(node.name) < 0) {
-                this.entityName.push(node.name);
-              }
-            }
-            const newNode = {
-              ...node.fieldList[j],
-              nanoid: nanoid(),
-              showChild: false,
-              entity: nodeType(type),
-              type: node.fieldList[j].isList
-                ? `List[${nodeType(node.fieldList[j].type)}]`
-                : nodeType(node.fieldList[j].type),
-              nodes: this.getJsonTree(data, _nodeType)
-            };
-            itemArr.push(newNode);
-          }
-        }
-      }
-      return itemArr;
-    },
-    // 将SchemaJson进行处理
-    getJsonSchemaTree(data) {
-      const newData = [];
-      for (let key in data) {
-        let curNodes = [];
-        const type = data[key]["type"];
-        const newNode = {
-          name: key,
-          type: type,
-          isList: type === "array",
-          desc: "",
-          nanoid: nanoid(),
-          showChild: false,
-          nodes:
-            type == "array"
-              ? this.getJsonSchemaTree(data[key].items.properties)
-              : this.getJsonSchemaTree(data[key].properties)
-        };
-        newData.push(newNode);
-      }
-      return newData;
     },
   }
 };

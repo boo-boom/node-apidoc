@@ -1,50 +1,30 @@
 <template>
-  <div class="tree-field">
-    <div v-for="(item, index) in content" :key="item.nanoid">
-      <p class="dynamicEntityName" v-if="type=='dynamic'">{{item.entity}}</p>
-      <el-row :gutter="10">
-        <el-col class="indent" :span="11" :style="{paddingLeft:`${depth * 30}px`}">
-          <i :class="[`el-icon-caret-${item.showChild?'top':'bottom'}`]" v-if="item.nodes.length" @click="toggleShowChild(item)"></i>
-          <i v-else></i>
-          <el-input size="mini" placeholder="字段名" v-model="item.name"></el-input>
+  <div class="tree-field" id="treeField" ref="treeField">
+    <div v-for="item in content" :key="item.nanoid">
+      <p class="item-title">{{item.name}}</p>
+      <el-row :gutter="10" v-for="(field, idx) in item.fieldList" :key="field.nanoid">
+        <el-col class="indent" :span="11">
+          <el-input size="mini" placeholder="字段名" v-model="field.name"></el-input>
         </el-col>
         <el-col :span="7">
-          <el-input size="mini" placeholder="类型" v-model="item.type" v-if="!item.nodes.length || !item.type"></el-input>
-          <el-tooltip class="pd-0" effect="dark" :content="item.type" placement="top" v-if="item.type && item.nodes.length">
-            <el-input size="mini" placeholder="类型" v-model="item.type">
-              <i slot="suffix" class="el-input__icon el-icon-warning" v-if="item.isList"></i>
-            </el-input>
-          </el-tooltip>
+          <el-input size="mini" placeholder="类型" v-model="field.type"></el-input>
         </el-col>
         <el-col :span="4">
-          <el-input size="mini" placeholder="备注" v-model="item.desc" v-if="!item.desc"></el-input>
-          <el-tooltip class="pd-0" effect="dark" :content="item.desc" placement="top" v-else>
-            <el-input size="mini" placeholder="备注" v-model="item.desc"></el-input>
-          </el-tooltip>
+          <el-input size="mini" placeholder="备注" v-model="field.desc"></el-input>
         </el-col>
         <el-col :span="2" class="btns">
-          <i class="el-icon-close" v-if="depth > 0 || content.length > 1" @click="removeField(index)"></i>
-          <el-tooltip class="pd-0" effect="dark" :content="tooltip(item.type).text" placement="top" v-if="depth > 0 || content.length > 1">
-            <el-button type="text" icon="el-icon-plus" @click="addField(item, index)"></el-button>
-          </el-tooltip>
-          <el-dropdown @command="addField(item, index, $event)" v-else>
-            <el-button type="text" icon="el-icon-plus"></el-button>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item command="sibling">添加兄弟节点</el-dropdown-item>
-              <el-dropdown-item command="child" v-if="isObject(item.type)">添加子节点</el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
+          <i class="el-icon-close" @click="removeField(item, idx)"></i>
+          <i class="el-icon-plus" @click="addField(item, idx)"></i>
         </el-col>
       </el-row>
-      <div class="children" v-if="item.nodes.length" v-show="item.showChild">
-        <treeField :content="item.nodes" :depth="depth + 1" />
-      </div>
     </div>
   </div>
 </template>
 
 <script>
 import nanoid from 'nanoid';
+import { remote, ipcRenderer } from 'electron';
+import { FindInPage } from 'electron-find';
 export default {
   name: "treeField",
   props: {
@@ -54,55 +34,41 @@ export default {
         return [];
       }
     },
-    type: {
-      type: String,
-      default: 'normal'
-    },
-    depth: {
-      type: Number,
-      default: 0,
-    },
+  },
+  data() {
+    return {
+      findInPage: null
+    }
+  },
+  destroyed() {
+    this.findInPage.destroy()
+  },
+  mounted() {
+    this.$nextTick(() => {
+      if(!this.findInPage) {
+        setTimeout(() => {
+          this.findInPage = new FindInPage(remote.getCurrentWebContents(), {
+            preload: true,
+            parentElement: this.$refs.treeField
+          })
+          this.findInPage.openFindWindow()
+        }, 1000)
+      }
+      console.log(this.$refs.treeField)
+    })
   },
   methods: {
-    toggleShowChild(item) {
-      item.showChild = !item.showChild;
-    },
-    addField(item, index, command) {
+    addField(item, index) {
       const _item = {
         desc: "",
         isList: false,
         name: `Field_${nanoid(5)}`,
-        nanoid: nanoid(),
-        showChild: true,
-        nodes: [],
-        type: "string"
+        type: "",
       };
-      const tag = command || this.tooltip(item.type).tag;
-      if(tag === 'child') {
-        this.content[index].showChild = true;
-        item.nodes.push(_item);
-      } else {
-        this.content.splice(index + 1, 0, _item);
-      }
+      item.fieldList.splice(index + 1, 0, _item);
     },
-    removeField(index) {
-      this.content.splice(index, 1);
-    },
-    // 判断类型是否是对象
-    isObject(type) {
-      const test = /^Api_/ig.test(type) ||
-                   /^list\[/ig.test(type) ||
-                   type == 'array' ||
-                   type == 'object';
-      return test;
-    },
-    // 判断是否是子节点，用于判断添加字段时的逻辑处理
-    tooltip(type) {
-      const test = this.isObject(type);
-      return test ? {tag: 'child', text: '添加子节点'} : {tag: 'sibling', text: '添加兄弟节点'};
-    },
-    editIsList(item) {
-      item.isList = /^list\[(\w+)\]$/ig.test(item.type) ? true : false;
+    removeField(item, index) {
+      item.fieldList.splice(index, 1);
     },
   }
 };
@@ -110,9 +76,9 @@ export default {
 
 <style lang="scss" scoped>
 .tree-field {
-  .dynamicEntityName {
+  .item-title {
     font-size: 13px;
-    padding: 0 0 5px 20px;
+    padding: 0 0 5px 0;
   }
   .pd-0 {
     padding: 0;

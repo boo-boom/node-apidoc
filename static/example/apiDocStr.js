@@ -18,8 +18,13 @@
  * @apiGroup aestheticslab
  *
  *
- * @apiParam {long} lectureId1 活动ID111
- * @apiParam {long} lectureId2 活动ID222
+ * @apiParam {Api_SEARCH_SearchFCategoryRequestParam_Node} searchFCategoryRequestParam 请求参数
+ * @apiParam (Api_SEARCH_SearchFCategoryRequestParam_Node) {int} searchId 搜索条件id，也即二级前端类目的id, <=0:本参数无效
+ *
+ * @apiParam {Api_SEARCH_SearchFCategoryRequestParam123_Node} searchFCategoryRequestParam123 请求参数123
+ * @apiParam (Api_SEARCH_SearchFCategoryRequestParam123_Node) {int} searchId 搜索条件id，也即二级前端类目的id, <=0:本参数无效
+ *
+ * @apiParam {int} hasActivity 活动过滤，0:本参数无效，1:无活动，2:有活动
  *
  * @block [Api_AESTHETICSLAB_LectureAllInfo_NodeResp]
  * @apiSuccess (Api_AESTHETICSLAB_LectureAllInfo_NodeResp) {Api_COMMUNITYPOST_NodePostInfo} postContent 活动内容主体

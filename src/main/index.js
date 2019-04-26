@@ -29,6 +29,7 @@ function createWindow () {
     mainWindow = null
   })
 
+  // mainWindow.webContents.findInPage('Api_COMMUNITYPOST_SegmentInfo')
 
 }
 
