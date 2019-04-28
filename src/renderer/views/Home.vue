@@ -15,7 +15,8 @@
         <div class="title" v-if="lastObject.params.parameter.length">
           <span>请求参数</span>
         </div>
-        <ParamsInfo v-if="lastObject.params.parameter.length" :content="lastObject.params.parameter"/>
+        <ParamsInfo v-if="lastObject.params.parameter.length" @removeChild="removeChild" :content="lastObject.params.parameter"/>
+        <ReqStruct v-if="lastObject.params.reqStruct.length" :content="lastObject.params.reqStruct"/>
         <!-- 返回数据 -->
         <div class="title" style="paddingTop:20px;" v-if="lastObject.respStructList.length">
           <span>返回数据</span>
@@ -61,11 +62,12 @@ import { createDoc } from "@/assets/utils/parser.js";
 import { nodeType, methodName } from "@/assets/utils/nodes.js";
 import BaseInfo from '@/components/BaseInfo';
 import ParamsInfo from '@/components/ParamsInfo';
+import ReqStruct from '@/components/ReqStruct';
 import TreeField from "@/components/TreeField";
 
 export default {
   name: "home-container",
-  components: { BaseInfo, ParamsInfo, TreeField },
+  components: { BaseInfo, ParamsInfo, ReqStruct, TreeField },
   data() {
     const verApiName = (rule, value, callback) => {
       if (!value) {
@@ -177,6 +179,9 @@ export default {
         }
       });
       return data;
+    },
+    removeChild(type, index) {
+      console.log(type, index)
     },
     // 获取修改后的文档
     jsonToDoc() {
