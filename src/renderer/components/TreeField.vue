@@ -77,6 +77,9 @@ export default {
       console.log(item)
       item.fieldList.splice(index, 1);
     },
+    recursiveField(fieldList, type) {
+
+    },
   }
 };
 </script>
