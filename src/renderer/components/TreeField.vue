@@ -14,7 +14,7 @@
           <div v-else>
             <el-input size="mini" placeholder="类型" v-model="item.type" v-if="!item.nodes.length || !item.type"></el-input>
             <el-tooltip class="pd-0" effect="dark" :content="item.type" placement="top" v-if="item.type && item.nodes.length">
-              <el-input size="mini" placeholder="类型" v-model="item.type">
+              <el-input size="mini" placeholder="类型" v-model="item.type" @change="editType(item)">
                 <i slot="suffix" class="el-input__icon el-icon-warning" v-if="item.isList"></i>
               </el-input>
             </el-tooltip>
@@ -71,10 +71,17 @@ export default {
     },
   },
   methods: {
+    editType(item) {
+      item.nodes.forEach(node => {
+        node.entity = item.type;
+      });
+      console.log(item)
+    },
     toggleShowChild(item) {
       item.showChild = !item.showChild;
     },
     addField(item, index, command) {
+      console.log(item.entity)
       const _item = {
         desc: "",
         isList: false,
@@ -87,7 +94,16 @@ export default {
       };
       const tag = command || this.tooltip(item.type).tag;
       if(tag === 'child') {
+        // console.log(this.content[index+1].entity) //\[\w+\]$
         this.content[index].showChild = true;
+        if(/^Api_/ig.test(item.type) || /^list\[\w+]$/ig.test(item.type)) {
+          _item.entity = item.type;
+          if(/^list\[\w+]$/ig.test(item.type)) {
+            _item.entity = item.type.match(/\[(.+?)\]$/ig)[0].replace('[', '');
+            _item.entity = _item.entity.replace(']', '');
+          }
+          console.log(_item.entity)
+        }
         item.nodes.push(_item);
       } else {
         this.content.splice(index + 1, 0, _item);
@@ -99,7 +115,7 @@ export default {
     // 判断类型是否是对象
     isObject(type) {
       const test = /^Api_/ig.test(type) ||
-                   /^list\[/ig.test(type) ||
+                   /^list\[\w+]$/ig.test(type) ||
                    type == 'array' ||
                    type == 'object';
       return test;

@@ -30,6 +30,7 @@
  * @apiSuccess (Api_COMMUNITYPOST_NodePostInfo) {list[Api_DynamicEntity]} dynamicEntityList 内容信息 本字段为动态数据类型, 可能类型为以下种类:SegmentInfo, TextInfo, VideoInfo, ImageInfo,
  * @apiSuccess (Api_COMMUNITYPOST_NodePostInfo) {long} long1 测试1
  * @apiSuccess (Api_COMMUNITYPOST_NodePostInfo) {long} long2 测试2
+ * @apiSuccess (Api_COMMUNITYPOST_NodePostInfo) {Api_Aaa_Bbb} long3 测试3
  *
  *
  * @block [Api_DynamicEntity]

@@ -107,6 +107,7 @@ const saveParams = (info) => {
 
 const saveRespStructList = (info, dynamic, dynamicEntityName) => {
   let list = jsonGroup([...info, ...dynamic]);
+  console.log(list)
   let str = '';
   for(let i = 0; i < list.length; i++) {
     if(dynamicEntityName.includes(list[i].type)) {

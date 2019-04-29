@@ -31,6 +31,8 @@
   * @block [Api_DynamicEntity]
   * @apiSuccess (Api_DynamicEntity) {[T]} entity 动态实体
   * @apiSuccess (Api_DynamicEntity) {string} typeName 实体名
+  * @apiSuccess (Api_DynamicEntity) {string} Field_-VDfw 
+  * @apiSuccess (Api_DynamicEntity) {string} Field_isDR_ 
   *
   * @block [Api_NodeAaa_Bbb]
   * @apiSuccess (Api_NodeAaa_Bbb) {Api_NodeCcc_Ddd} url222 seg2222
@@ -51,6 +53,7 @@
   * @apiSuccess (Api_COMMUNITYPOST_ImageInfo) {string} linkUrl 跳转链接
   *
   * @block [Api_COMMUNITYPOST_NodeTagInfo]
+  * @apiSuccess (Api_COMMUNITYPOST_NodeTagInfo) {string} Field_MfFay 
   * @apiSuccess (Api_COMMUNITYPOST_NodeTagInfo) {string} linkUrl123 跳转链接123
   * @apiSuccess (Api_COMMUNITYPOST_NodeTagInfo) {string} 123 123跳转链接123
   *
