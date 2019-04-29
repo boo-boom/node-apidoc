@@ -1,8 +1,9 @@
-import { methodName } from '@/assets/utils/nodes'
+import { methodName, nodeType } from '@/assets/utils/nodes'
 
 // 检出所有字段对象
 const flatten = (data) => {
   return data.reduce((arr, {...cur, nodes = []}) => {
+    cur.nodes = [];
     return arr.concat([{...cur}], flatten(nodes));
   }, [])
 }
@@ -14,10 +15,18 @@ const jsonGroup = (info) => {
   for (var i = 0; i < arr.length; i++) {
     var ai = arr[i];
     if (!map[ai.entity]) {
-      dest.push({
-        type: ai.entity,
-        nodes: [ai]
-      });
+      if(ai.isParame) {
+        dest.push({
+          type: ai.entity,
+          nodes: [ai],
+          isParame: ai.isParame
+        });
+      } else {
+        dest.push({
+          type: ai.entity,
+          nodes: [ai]
+        });
+      }
       map[ai.entity] = ai;
     } else {
       for (var j = 0; j < dest.length; j++) {
@@ -32,6 +41,19 @@ const jsonGroup = (info) => {
   return dest;
 }
 
+const unique = (arr) => {
+  var hash = [];
+  for (var i = 0; i < arr.length; i++) {
+    for (var j = i+1; j < arr.length; j++) {
+      if(arr[i].name === arr[j].name){
+        ++i;
+      }
+    }
+    hash.push(arr[i]);
+  }
+  return hash;
+}
+
 const saveBase = (info) => {
   const str = `
   * @api {post} ${methodName(info.methodName)[0]}.${methodName(info.methodName)[1]} ${methodName(info.methodName)[1]}
@@ -41,7 +63,7 @@ const saveBase = (info) => {
   * "groupOwner":"${info.groupOwner}",
   * "methodOwner":"${info.methodOwner}",
   * "securityLevel":"${info.securityLevel}",
-  * "returnType":"${info.returnType}",
+  * "returnType":"${nodeType(info.returnType)}",
   * "state":"${info.state}",
   * "detail":"${info.detail}",
   * "encryptionOnly":${info.encryptionOnly},
@@ -51,55 +73,78 @@ const saveBase = (info) => {
   * `;
   return {
     baseStr: str,
-    returnType: info.returnType,
+    returnType: nodeType(info.returnType),
     methodName: methodName(info.methodName)[1]
   };
 };
 
 const saveParams = (info) => {
+  let list = jsonGroup(info);
   let str = '';
-  for(let i = 0; i < info.length; i++) {
-    if(i === 0) {
-      str += `* @apiParam {${info[i].type}} ${info[i].name} ${info[i].description}`;
+  for(let i = 0; i < list.length; i++) {
+    if(list[i].type) {
+      if(i === 0) {
+        str += `*\n  * @block [${list[i].type}]`;
+      } else {
+        str += `\n  *\n  * @block [${list[i].type}]`;
+      }
     } else {
-      str += `\n  * @apiParam {${info[i].type}} ${info[i].name} ${info[i].description}`;
+      str += `*`;
+    }
+    for(let j = 0; j < list[i].nodes.length; j++) {
+      list[i].nodes = unique(list[i].nodes);
+      const nodes = list[i].nodes[j];
+      if(nodes.isParame) {
+        str += `\n  * @apiParam {${nodes.type}} ${nodes.name} ${nodes.desc}`;
+      } else {
+        str += `\n  * @apiParam (${list[i].type}) {${nodes.type}} ${nodes.name} ${nodes.desc}`;
+      }
     }
   }
   // console.log(info)
   return str;
 }
 
-const saveRespStructList = (info) => {
-  let list = jsonGroup(info);
+const saveRespStructList = (info, dynamic, dynamicEntityName) => {
+  let list = jsonGroup([...info, ...dynamic]);
   let str = '';
   for(let i = 0; i < list.length; i++) {
-    if(i === 0) {
-      str += `*\n  * @block [${list[i].type}]`;
+    if(dynamicEntityName.includes(list[i].type)) {
+      if(i === 0) {
+        str += `*\n  * @block [${list[i].type}]`;
+      } else {
+        str += `\n  *\n  * @block [${list[i].type}]`;
+      }
     } else {
-      str += `\n  *\n  * @block [${list[i].type}]`;
+      if(i === 0) {
+        str += `*\n  * @block [${nodeType(list[i].type)}]`;
+      } else {
+        str += `\n  *\n  * @block [${nodeType(list[i].type)}]`;
+      }
     }
     for(let j = 0; j < list[i].nodes.length; j++) {
-      str += `\n  * @apiSuccess (${list[i].type}) {${list[i].nodes[j].type}} ${list[i].nodes[j].name} ${list[i].nodes[j].desc}`;
+      list[i].nodes = unique(list[i].nodes);
+      const nodes = list[i].nodes[j];
+      if(!nodes.isDynamic) {
+        if(dynamicEntityName.includes(list[i].type)) {
+          str += `\n  * @apiSuccess (${list[i].type}) {${nodeType(nodes.type)}} ${nodes.name} ${nodes.desc}`;
+        } else {
+          str += `\n  * @apiSuccess (${nodeType(list[i].type)}) {${nodeType(nodes.type)}} ${nodes.name} ${nodes.desc}`;
+        }
+      }
     }
   }
   return str;
 }
 
-const saveDynamicEntity = (info) => {
-  // let list = jsonGroup(info);
-  var arr = flatten(info);
-  console.log(arr)
-  return ''
-}
-
-const saveDoc = (apiDate) => {
+const saveDoc = (apiDate, dynamicEntityName) => {
   const doc =
 `/**
   *
   ${saveBase(apiDate.baseInfo).baseStr}
   ${saveParams(apiDate.params)}
-  ${saveRespStructList(apiDate.respStructList, saveBase(apiDate.baseInfo).returnType)}
-  ${saveDynamicEntity(apiDate.dynamicEntity)}
+  *
+  ${saveRespStructList(apiDate.respStructList, apiDate.dynamicEntity, dynamicEntityName)}
   */`;
   return {
     doc,

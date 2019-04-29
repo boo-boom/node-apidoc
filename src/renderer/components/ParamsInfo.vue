@@ -81,6 +81,7 @@ export default {
         showChild: true,
         nodes: [],
         type: "string",
+        entity: item.entity
       };
       const tag = command || this.tooltip(item.type).tag;
       if(tag === 'child') {
@@ -98,6 +99,7 @@ export default {
             nodes: [],
             sequence: "",
             type: "string",
+            entity: item.entity
           };
         }
         this.content.splice(index + 1, 0, _item);

@@ -14,8 +14,10 @@
   *
   * @apiGroup node_aestheticslab
   * 
+  *
   * @apiParam {long} lectureId1 活动ID111
   * @apiParam {long} lectureId2 活动ID222
+  *
   *
   * @block [Api_NodeAESTHETICSLAB_LectureAllInfo_NodeResp]
   * @apiSuccess (Api_NodeAESTHETICSLAB_LectureAllInfo_NodeResp) {Api_NodeCOMMUNITYPOST_NodePostInfo} postContent 活动内容主体
@@ -38,9 +40,26 @@
   * @block [Api_NodeCcc_Ddd]
   * @apiSuccess (Api_NodeCcc_Ddd) {string} url111 segment链接111
   * @apiSuccess (Api_NodeCcc_Ddd) {string} url222 segment链接222
-  * @apiSuccess (Api_NodeCcc_Ddd) {string} url111 segment链接111
-  * @apiSuccess (Api_NodeCcc_Ddd) {string} url222 segment链接222
-  * @apiSuccess (Api_NodeCcc_Ddd) {string} url111 segment链接111
-  * @apiSuccess (Api_NodeCcc_Ddd) {string} url222 segment链接222
-  
+  *
+  * @block [Api_COMMUNITYPOST_ImageInfo]
+  * @apiSuccess (Api_COMMUNITYPOST_ImageInfo) {int} id 图片素材ID
+  * @apiSuccess (Api_COMMUNITYPOST_ImageInfo) {string} url 图片链接
+  * @apiSuccess (Api_COMMUNITYPOST_ImageInfo) {int} width 图宽度
+  * @apiSuccess (Api_COMMUNITYPOST_ImageInfo) {int} height 图高度
+  * @apiSuccess (Api_COMMUNITYPOST_ImageInfo) {List[Api_COMMUNITYPOST_NodeTagInfo]} tagInfoList 标签信息
+  * @apiSuccess (Api_COMMUNITYPOST_ImageInfo) {string} miniprogramAppId 小程序appId
+  * @apiSuccess (Api_COMMUNITYPOST_ImageInfo) {string} linkUrl 跳转链接
+  *
+  * @block [Api_COMMUNITYPOST_NodeTagInfo]
+  * @apiSuccess (Api_COMMUNITYPOST_NodeTagInfo) {string} linkUrl123 跳转链接123
+  * @apiSuccess (Api_COMMUNITYPOST_NodeTagInfo) {string} 123 123跳转链接123
+  *
+  * @block [Api_COMMUNITYPOST_SegmentInfo]
+  * @apiSuccess (Api_COMMUNITYPOST_SegmentInfo) {Api_NodeAaa_Bbb} aaa bbb链接
+  * @apiSuccess (Api_COMMUNITYPOST_SegmentInfo) {Api_NodeAaa_Bbb} aaa123 bbb123链接
+  *
+  * @block [Api_COMMUNITYPOST_TextInfo]
+  * @apiSuccess (Api_COMMUNITYPOST_TextInfo) {string} text 文字
+  * @apiSuccess (Api_COMMUNITYPOST_TextInfo) {string} text1 文字1
+  * @apiSuccess (Api_COMMUNITYPOST_TextInfo) {string} text2 文字2
   */

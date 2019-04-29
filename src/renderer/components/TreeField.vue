@@ -1,26 +1,33 @@
 <template>
   <div class="tree-field">
     <div v-for="(item, index) in content" :key="item.nanoid">
-      <p class="dynamicEntityName" v-if="type=='dynamic'">{{item.entity}}</p>
+      <!-- <p class="dynamicEntityName" v-if="type=='dynamic'">{{item.entity}}</p> -->
       <el-row :gutter="10">
-        <el-col class="indent" :span="11" :style="{paddingLeft:`${depth * 30}px`}">
+        <el-col class="indent" :span="8" :style="{paddingLeft:`${depth * 30}px`}">
           <i :class="[`el-icon-caret-${item.showChild?'top':'bottom'}`]" v-if="item.nodes.length" @click="toggleShowChild(item)"></i>
           <i v-else></i>
-          <el-input size="mini" placeholder="字段名" v-model="item.name"></el-input>
+          <el-input size="mini" placeholder="字段名" v-model="item.entity" v-if="type == 'dynamic'"></el-input>
+          <el-input size="mini" placeholder="字段名" v-model="item.name" v-else></el-input>
         </el-col>
         <el-col :span="7">
-          <el-input size="mini" placeholder="类型" v-model="item.type" v-if="!item.nodes.length || !item.type"></el-input>
-          <el-tooltip class="pd-0" effect="dark" :content="item.type" placement="top" v-if="item.type && item.nodes.length">
-            <el-input size="mini" placeholder="类型" v-model="item.type">
-              <i slot="suffix" class="el-input__icon el-icon-warning" v-if="item.isList"></i>
-            </el-input>
-          </el-tooltip>
+          <el-input size="mini" placeholder="类型" value="Api_DynamicEntity" v-if="type == 'dynamic'" disabled></el-input>
+          <div v-else>
+            <el-input size="mini" placeholder="类型" v-model="item.type" v-if="!item.nodes.length || !item.type"></el-input>
+            <el-tooltip class="pd-0" effect="dark" :content="item.type" placement="top" v-if="item.type && item.nodes.length">
+              <el-input size="mini" placeholder="类型" v-model="item.type">
+                <i slot="suffix" class="el-input__icon el-icon-warning" v-if="item.isList"></i>
+              </el-input>
+            </el-tooltip>
+          </div>
         </el-col>
-        <el-col :span="4">
-          <el-input size="mini" placeholder="备注" v-model="item.desc" v-if="!item.desc"></el-input>
-          <el-tooltip class="pd-0" effect="dark" :content="item.desc" placement="top" v-else>
-            <el-input size="mini" placeholder="备注" v-model="item.desc"></el-input>
-          </el-tooltip>
+        <el-col :span="7">
+          <el-input size="mini" placeholder="备注" value="动态类型" v-if="type == 'dynamic'" disabled></el-input>
+          <div v-else>
+            <el-input size="mini" placeholder="备注" v-model="item.desc" v-if="!item.desc"></el-input>
+            <el-tooltip class="pd-0" effect="dark" :content="item.desc" placement="top" v-else>
+              <el-input size="mini" placeholder="备注" v-model="item.desc"></el-input>
+            </el-tooltip>
+          </div>
         </el-col>
         <el-col :span="2" class="btns">
           <i class="el-icon-close" v-if="depth > 0 || content.length > 1" @click="removeField(index)"></i>
@@ -75,7 +82,8 @@ export default {
         nanoid: nanoid(),
         showChild: true,
         nodes: [],
-        type: "string"
+        type: "string",
+        entity: item.entity
       };
       const tag = command || this.tooltip(item.type).tag;
       if(tag === 'child') {

@@ -20,14 +20,13 @@ export const nodesPath = (tree='0,', dir) => {
 }
 
 export const nodeType = (str) => {
-  let newReturnType = '';
+  let newReturnType = str;
   if(/^Api_/.test(str) && str != 'Api_DynamicEntity') {
     if(!/^Api_Node/.test(str)) {
       newReturnType = insertStr(str, 4, 'Node');
     }
-    return newReturnType
   }
-  return str
+  return newReturnType
 }
 
 export const methodName = (str, isStr=false) => {
@@ -41,4 +40,10 @@ export const methodName = (str, isStr=false) => {
     }
     return str.split('.')
   }
+}
+
+export const isEntity = (type) => {
+  const test = /^Api_/ig.test(type) ||
+               /^list\[/ig.test(type);
+  return test;
 }

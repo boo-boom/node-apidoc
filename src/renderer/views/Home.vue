@@ -35,7 +35,7 @@
           <!-- 动态实体 -->
           <div v-if="lastObject.dynamicEntity.length">
             <div class="title" style="paddingTop:20px;">
-              <span>动态实体 [修改需谨慎]</span>
+              <span>动态实体 [谨慎修改]</span>
             </div>
             <tree-field type="dynamic" :content="lastObject.dynamicEntity" :depth="0" />
           </div>
@@ -78,7 +78,7 @@ import generateSchema from "generate-schema/src/schemas/json.js";
 import ace from "brace";
 import "brace/mode/json";
 import { createDoc } from "@/assets/utils/parser.js";
-import { nodeType, methodName } from "@/assets/utils/nodes.js";
+import { nodeType, methodName, isEntity } from "@/assets/utils/nodes.js";
 import BaseInfo from '@/components/BaseInfo';
 import ParamsInfo from '@/components/ParamsInfo';
 import TreeField from "@/components/TreeField";
@@ -104,6 +104,7 @@ export default {
       docToFile: '',        // 转换成apiDoc所需要的数据
       allEntityName: [],    // 全部动态实体名
       entityName: [],       // 非动态实体名
+      dynamicEntity: [],    // 动态实体名
       editIsJson: false,    // 是否是导入json
       editor: null,         // json编辑器
       jsonState: null,      // 导入json后数据状态
@@ -230,6 +231,11 @@ export default {
               } else {
                 fomartJson(api_data, infoJson => {
                   const curApi = infoJson.apiList[0];
+                  console.log(api_data[0].error.fields)
+                  // 获取错误字段
+                  if(api_data[0].error.fields && api_data[0].error.fields.length) {
+                    this.lastObject.error = api_data[0].error.fields;
+                  }
                   // 获取初始化数据
                   this.lastObject.baseInfo = {
                     methodName: `${methodName(curApi.methodName, true)}`,
@@ -241,15 +247,26 @@ export default {
                     detail: curApi.detail,
                     encryptionOnly: curApi.encryptionOnly,
                     needVerify: curApi.needVerify,
-                    returnType: nodeType(curApi.returnType),
+                    returnType: curApi.returnType,
                   }
                   // 获取参数
                   this.lastObject.params = [];
                   for(let i = 0; i < curApi.parameterInfoList.length; i++) {
                     curApi.parameterInfoList[i].nodes = [];
-                    this.lastObject.params.push(curApi.parameterInfoList[i])
+                    this.lastObject.params.push({
+                      ...curApi.parameterInfoList[i],
+                      isParame: true,
+                      desc: curApi.parameterInfoList[i].description,
+                      nanoid: nanoid(),
+                      entity: isEntity(curApi.parameterInfoList[i].type)
+                              ? curApi.parameterInfoList[i].type
+                              : '',
+                    })
                     if(curApi.reqStructList.length) {
-                      this.$set(this.lastObject.params[i], 'nodes', this.getJsonTree(curApi.reqStructList, this.lastObject.params[i].type));
+                      this.$set(this.lastObject.params[i], 'nodes', this.getJsonTree(curApi.reqStructList, this.lastObject.params[i].type), true);
+                    }
+                    if(isEntity(curApi.parameterInfoList[i].type)) {
+                      this.lastObject.params[i].type = curApi.parameterInfoList[i].type;
                     }
                   }
                   // 获取返回数据
@@ -280,7 +297,7 @@ export default {
         filePaths => {
           if (filePaths) {
             this.showGeLoading = false;
-            const { doc, methodName} = saveDoc(this.lastObject);
+            const { doc, methodName} = saveDoc(this.lastObject, this.dynamicEntity);
             this.dialogFormVisible = true;
             this.docFileName = methodName;
             this.docPath = filePaths[0];
@@ -335,9 +352,7 @@ export default {
           message: '文件名错误'
         });
       }
-
-      // fs.writeFileSync(this.docPath, doc);
-      console.log(this.docPath, this.docFileName, this.docToFile)
+      // console.log(this.docPath, this.docFileName, this.docToFile)
     },
     // 切换状态
     typeTab() {
@@ -353,38 +368,35 @@ export default {
           data.forEach(field => {
             if(field.name === item) {
               _dynamicEntity.push(field)
+              this.dynamicEntity.push(field.name)
             }
           });
         }
       })
+      // console.log(dynamicEntity)
       // format动态组件结构
       const dynamicEntityList = [];
       if(_dynamicEntity.length) {
         for (let i = 0; i < _dynamicEntity.length; i++) {
           const node = _dynamicEntity[i];
-          for(let j = 0; j < node.fieldList.length; j++) {
-            dynamicEntityList[i] = {
-              ...node.fieldList[j],
-              nanoid: nanoid(),
-              showChild: false,
-              type: node.fieldList[j].isList
-                ? `List[${nodeType(node.fieldList[j].type)}]`
-                : nodeType(node.fieldList[j].type),
-              entity: node.name,
-              nodes: this.getJsonTree(data, node.fieldList[j].type),
-            };
-          }
+          dynamicEntityList[i] = ({
+            isDynamic: true,
+            nanoid: nanoid(),
+            showChild: false,
+            entity: node.name,
+            nodes: this.getJsonTree(data, node.name, true),
+          });
         }
       }
-      console.log(dynamicEntityList)
+      // console.log(dynamicEntityList)
       return dynamicEntityList;
     },
     // 将平铺数据转换成树状结构
-    getJsonTree(data, type, isGetName=false) {
+    getJsonTree(data, type, openGetName=false) {
       const itemArr = [];
       for (let i = 0; i < data.length; i++) {
         const node = data[i];
-        if(!isGetName) {
+        if(!openGetName) {
           // 获取全部实体名
           if(this.allEntityName.indexOf(node.name) < 0) {
             this.allEntityName.push(node.name);
@@ -393,7 +405,7 @@ export default {
         if (node.name == type) {
           for (let j = 0; j < node.fieldList.length; j++) {
             const _nodeType = node.fieldList[j].type;
-            if(!isGetName) {
+            if(!openGetName) {
               // 已经匹配到type的实体
               if(this.entityName.indexOf(node.name) < 0) {
                 this.entityName.push(node.name);
@@ -403,10 +415,10 @@ export default {
               ...node.fieldList[j],
               nanoid: nanoid(),
               showChild: false,
-              entity: nodeType(type),
+              entity: type,
               type: node.fieldList[j].isList
-                ? `List[${nodeType(node.fieldList[j].type)}]`
-                : nodeType(node.fieldList[j].type),
+                ? `List[${node.fieldList[j].type}]`
+                : node.fieldList[j].type,
               nodes: this.getJsonTree(data, _nodeType)
             };
             itemArr.push(newNode);
