@@ -18,8 +18,17 @@ export default `
  * @apiGroup aestheticslab
  *
  *
- * @apiParam {long} lectureId1 活动ID111
- * @apiParam {long} lectureId2 活动ID222
+ * @apiParam {Api_AESTHETICSLAB_LectureListSearchParam} lectureListSearchParam 活动列表搜索参数
+ * @apiParam {Api_AESTHETICSLAB_PageParameter} pageParameter 分页参数
+ *
+ * @block [Api_AESTHETICSLAB_LectureListSearchParam]
+ * @apiParam (Api_AESTHETICSLAB_LectureListSearchParam) {int} storeId 门店ID
+ * @apiParam (Api_AESTHETICSLAB_LectureListSearchParam) {string} lectureType 活动类型 END 往期讲座, NEAR_FUTURE 近期讲座, UNDERWAY 进行中讲座
+ *
+ * @block [Api_AESTHETICSLAB_PageParameter]
+ * @apiParam (Api_AESTHETICSLAB_PageParameter) {int} offset 记录偏移量
+ * @apiParam (Api_AESTHETICSLAB_PageParameter) {int} limit 返回记录最大数量
+ *
  *
  * @block [Api_AESTHETICSLAB_LectureAllInfo_NodeResp]
  * @apiSuccess (Api_AESTHETICSLAB_LectureAllInfo_NodeResp) {Api_COMMUNITYPOST_NodePostInfo} postContent 活动内容主体

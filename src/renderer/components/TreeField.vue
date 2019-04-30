@@ -12,7 +12,7 @@
         <el-col :span="7">
           <el-input size="mini" placeholder="类型" value="Api_DynamicEntity" v-if="type == 'dynamic'" disabled></el-input>
           <div v-else>
-            <el-input size="mini" placeholder="类型" v-model="item.type" v-if="!item.nodes.length || !item.type"></el-input>
+            <el-input size="mini" placeholder="类型" v-model="item.type" @change="editType(item)" v-if="!item.nodes.length || !item.type"></el-input>
             <el-tooltip class="pd-0" effect="dark" :content="item.type" placement="top" v-if="item.type && item.nodes.length">
               <el-input size="mini" placeholder="类型" v-model="item.type" @change="editType(item)">
                 <i slot="suffix" class="el-input__icon el-icon-warning" v-if="item.isList"></i>
@@ -72,9 +72,11 @@ export default {
   },
   methods: {
     editType(item) {
-      item.nodes.forEach(node => {
-        node.entity = item.type;
-      });
+      if(this.isObject(item.type)) {
+        item.nodes.forEach(node => {
+          node.entity = item.type;
+        });
+      }
     },
     toggleShowChild(item) {
       item.showChild = !item.showChild;

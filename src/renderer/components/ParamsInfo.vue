@@ -8,9 +8,9 @@
           <el-input size="mini" placeholder="字段名" v-model="item.name"></el-input>
         </el-col>
         <el-col :span="4">
-          <el-input size="mini" placeholder="类型" v-model="item.type" v-if="!item.nodes.length || !item.type"></el-input>
+          <el-input size="mini" placeholder="类型" v-model="item.type" @change="editType(item)" v-if="!item.nodes.length || !item.type"></el-input>
           <el-tooltip class="pd-0" effect="dark" :content="item.type" placement="top" v-if="item.type && item.nodes.length">
-            <el-input size="mini" placeholder="类型" v-model="item.type">
+            <el-input size="mini" placeholder="类型" v-model="item.type" @change="editType(item)">
               <i slot="suffix" class="el-input__icon el-icon-warning" v-if="item.isList"></i>
             </el-input>
           </el-tooltip>
@@ -29,7 +29,7 @@
           <el-input size="mini" placeholder="" disabled v-else></el-input>
         </el-col>
         <el-col :span="2" class="btns">
-          <i class="el-icon-close" v-if="depth > 0 || content.length > 1" @click="removeField(index)"></i>
+          <i class="el-icon-close" @click="removeField(index)"></i>
           <el-tooltip class="pd-0" effect="dark" :content="tooltip(item.type).text" placement="top" v-if="depth > 0 || content.length > 1">
             <el-button type="text" icon="el-icon-plus" @click="addField(item, index, depth)"></el-button>
           </el-tooltip>
@@ -69,10 +69,19 @@ export default {
     return {};
   },
   methods: {
+    editType(item) {
+      if(this.isObject(item.type)) {
+        item.entity = item.type;
+         item.nodes.forEach(node => {
+          node.entity = item.type;
+        });
+      }
+    },
     toggleShowChild(item) {
       this.$set(item, 'showChild', !item.showChild);
     },
     addField(item, index, depth, command) {
+      console.log(item.entity)
       let _item = {
         desc: "",
         isList: false,

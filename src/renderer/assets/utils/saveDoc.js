@@ -95,9 +95,9 @@ const saveParams = (info) => {
       list[i].nodes = unique(list[i].nodes);
       const nodes = list[i].nodes[j];
       if(nodes.isParame) {
-        str += `\n  * @apiParam {${nodes.type}} ${nodes.name} ${nodes.desc}`;
+        str += `\n  * @apiParam {${nodes.type}} ${nodes.isRequired ? nodes.name : '['+nodes.name+']'} ${nodes.desc || nodes.description}`;
       } else {
-        str += `\n  * @apiParam (${list[i].type}) {${nodes.type}} ${nodes.name} ${nodes.desc}`;
+        str += `\n  * @apiParam (${list[i].type}) {${nodes.type}} ${nodes.name} ${nodes.desc || nodes.description}`;
       }
     }
   }
@@ -107,7 +107,7 @@ const saveParams = (info) => {
 
 const saveRespStructList = (info, dynamic, dynamicEntityName) => {
   let list = jsonGroup([...info, ...dynamic]);
-  console.log(list)
+  // console.log(list)
   let str = '';
   for(let i = 0; i < list.length; i++) {
     if(dynamicEntityName.includes(list[i].type)) {
@@ -140,7 +140,7 @@ const saveRespStructList = (info, dynamic, dynamicEntityName) => {
 
 const saveError = (info) => {
   let str = '';
-  console.log(info)
+  // console.log(info)
   for(let i = 0; i < info.length; i++) {
     str += `\n  * @apiError (${info[i].group}) {${info[i].type}} ${info[i].field} ${info[i].description}`
   }

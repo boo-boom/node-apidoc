@@ -5,7 +5,7 @@
   * "title":"获取活动详情",
   * "groupOwner":"王柯迪",
   * "methodOwner":"千云锋",
-  * "securityLevel":"Anonym",
+  * "securityLevel":"User",
   * "returnType":"Api_NodeAESTHETICSLAB_LectureAllInfo_NodeResp",
   * "state":"OPEN",
   * "detail":"",
@@ -15,8 +15,15 @@
   * @apiGroup node_aestheticslab
   * 
   *
-  * @apiParam {long} lectureId1 活动ID111
-  * @apiParam {long} lectureId2 活动ID222
+  * @block [Api_AESTHETICSLAB_LectureListSearchParam]
+  * @apiParam {Api_AESTHETICSLAB_LectureListSearchParam} lectureListSearchParam 活动列表搜索参数
+  * @apiParam (Api_AESTHETICSLAB_LectureListSearchParam) {int} storeId 门店ID
+  * @apiParam (Api_AESTHETICSLAB_LectureListSearchParam) {string} lectureType 活动类型 END 往期讲座, NEAR_FUTURE 近期讲座, UNDERWAY 进行中讲座
+  *
+  * @block [Api_AESTHETICSLAB_PageParameter]
+  * @apiParam {Api_AESTHETICSLAB_PageParameter} pageParameter 分页参数
+  * @apiParam (Api_AESTHETICSLAB_PageParameter) {int} offset 记录偏移量
+  * @apiParam (Api_AESTHETICSLAB_PageParameter) {int} limit 返回记录最大数量
   *
   *
   * @block [Api_NodeAESTHETICSLAB_LectureAllInfo_NodeResp]
@@ -67,6 +74,4 @@
   *
   * @apiError (Error_msg) {PARAM_ERROR_NUMBER_4000003} 4000003 参数错误
   * @apiError (Error) {PARAM_ERROR_NUMBER_4000001} 4000001 参数错误1
-  * @apiError (Error_msg) {123adasd} Field_9yWxI 123
-  * @apiError (Error_msg) {asdasdsad} Field_N5TYH werwer
   */

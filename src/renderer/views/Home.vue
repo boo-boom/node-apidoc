@@ -14,8 +14,9 @@
           <BaseInfo v-if="JSON.stringify(lastObject.baseInfo)!='{}'" :info="lastObject.baseInfo"/>
         </el-form>
         <!-- 请求参数 -->
-        <div class="title" v-if="lastObject.params.length">
+        <div class="title">
           <span>请求参数</span>
+          <el-button size="mini" type="warning" icon="el-icon-upload2" @click="addParam">添加参数</el-button>
         </div>
         <ParamsInfo v-if="lastObject.params.length" :content="lastObject.params" :depth="0"/>
         <!-- 返回数据 -->
@@ -40,12 +41,11 @@
             <tree-field type="dynamic" :content="lastObject.dynamicEntity" :depth="0" />
           </div>
           <!-- error -->
-          <div v-if="lastObject.error.length">
-            <div class="title" style="paddingTop:20px;">
-              <span>Error</span>
-            </div>
-            <error-info :content="lastObject.error" />
+          <div class="title" style="paddingTop:20px;">
+            <span>Error</span>
+            <el-button size="mini" type="warning" icon="el-icon-upload2" @click="addCode">添加code</el-button>
           </div>
+          <error-info v-if="lastObject.error.length" :content="lastObject.error" />
         </div>
       </div>
 
@@ -239,6 +239,7 @@ export default {
                 this.$message.error("文档格式出错");
               } else {
                 // 获取错误字段
+                this.lastObject.error = [];
                 if(api_data[0].error && api_data[0].error.fields) {
                   for(let key in api_data[0].error.fields) {
                     api_data[0].error.fields[key].forEach(item => {
@@ -252,7 +253,7 @@ export default {
                   const curApi = infoJson.apiList[0];
                   // 获取初始化数据
                   this.lastObject.baseInfo = {
-                    methodName: `${methodName(curApi.methodName, true)}`,
+                    methodName: curApi.methodName,
                     description: curApi.description,
                     groupOwner: curApi.groupOwner,
                     methodOwner: curApi.methodOwner,
@@ -463,6 +464,37 @@ export default {
       }
       return newData;
     },
+    // 添加code
+    addCode() {
+      const _item = {
+        description: "",
+        field: `Field_${nanoid(5)}`,
+        nanoid: nanoid(),
+        group: "Error_msg",
+        optional: false,
+        type: ""
+      };
+      this.lastObject.error.push(_item)
+    },
+    // 添加请求参数
+    addParam() {
+      const _item = {
+        desc: "",
+        description: "",
+        entity: "",
+        injectOnly: false,
+        isList: false,
+        isParame: true,
+        isRequired: true,
+        isRsaEncrypt: false,
+        name: `Field_${nanoid(5)}`,
+        nanoid: nanoid(),
+        nodes: [],
+        sequence: "",
+        type: "string",
+      };
+      this.lastObject.params.push(_item)
+    },
   }
 };
 </script>
@@ -525,6 +557,7 @@ export default {
       border-bottom: 1px solid #409eff;
       display: flex;
       align-items: center;
+      justify-content: space-between;
       & > span {
         margin-right: 20px;
       }
