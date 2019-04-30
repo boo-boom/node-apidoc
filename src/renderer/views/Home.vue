@@ -39,6 +39,13 @@
             </div>
             <tree-field type="dynamic" :content="lastObject.dynamicEntity" :depth="0" />
           </div>
+          <!-- error -->
+          <div v-if="lastObject.error.length">
+            <div class="title" style="paddingTop:20px;">
+              <span>Error</span>
+            </div>
+            <error-info :content="lastObject.error" />
+          </div>
         </div>
       </div>
 
@@ -82,10 +89,11 @@ import { nodeType, methodName, isEntity } from "@/assets/utils/nodes.js";
 import BaseInfo from '@/components/BaseInfo';
 import ParamsInfo from '@/components/ParamsInfo';
 import TreeField from "@/components/TreeField";
+import ErrorInfo from "@/components/ErrorInfo";
 
 export default {
   name: "home-container",
-  components: { BaseInfo, ParamsInfo, TreeField },
+  components: { BaseInfo, ParamsInfo, TreeField, ErrorInfo },
   data() {
     const verApiName = (rule, value, callback) => {
       if (!value) {
@@ -115,6 +123,7 @@ export default {
         params: [],
         respStructList: [],
         dynamicEntity: [],
+        error: []
       },
       rules: {
         'baseInfo.methodName': [{ required: true, validator: verApiName, trigger: "change" }],
@@ -229,13 +238,18 @@ export default {
               if(!api_data) {
                 this.$message.error("文档格式出错");
               } else {
+                // 获取错误字段
+                if(api_data[0].error && api_data[0].error.fields) {
+                  for(let key in api_data[0].error.fields) {
+                    api_data[0].error.fields[key].forEach(item => {
+                      item.nanoid = nanoid();
+                    })
+                    this.lastObject.error = this.lastObject.error.concat(api_data[0].error.fields[key])
+                  }
+                }
+
                 fomartJson(api_data, infoJson => {
                   const curApi = infoJson.apiList[0];
-                  console.log(api_data[0].error.fields)
-                  // 获取错误字段
-                  if(api_data[0].error.fields && api_data[0].error.fields.length) {
-                    this.lastObject.error = api_data[0].error.fields;
-                  }
                   // 获取初始化数据
                   this.lastObject.baseInfo = {
                     methodName: `${methodName(curApi.methodName, true)}`,

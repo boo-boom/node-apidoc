@@ -138,6 +138,15 @@ const saveRespStructList = (info, dynamic, dynamicEntityName) => {
   return str;
 }
 
+const saveError = (info) => {
+  let str = '';
+  console.log(info)
+  for(let i = 0; i < info.length; i++) {
+    str += `\n  * @apiError (${info[i].group}) {${info[i].type}} ${info[i].field} ${info[i].description}`
+  }
+  return str;
+}
+
 const saveDoc = (apiDate, dynamicEntityName) => {
   const doc =
 `/**
@@ -146,6 +155,8 @@ const saveDoc = (apiDate, dynamicEntityName) => {
   ${saveParams(apiDate.params)}
   *
   ${saveRespStructList(apiDate.respStructList, apiDate.dynamicEntity, dynamicEntityName)}
+  *
+  *${saveError(apiDate.error)}
   */`;
   return {
     doc,

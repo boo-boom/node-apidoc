@@ -27,12 +27,11 @@
   * @apiSuccess (Api_NodeCOMMUNITYPOST_NodePostInfo) {List[Api_DynamicEntity]} dynamicEntityList 内容信息 本字段为动态数据类型, 可能类型为以下种类:SegmentInfo, TextInfo, VideoInfo, ImageInfo,
   * @apiSuccess (Api_NodeCOMMUNITYPOST_NodePostInfo) {long} long1 测试1
   * @apiSuccess (Api_NodeCOMMUNITYPOST_NodePostInfo) {long} long2 测试2
+  * @apiSuccess (Api_NodeCOMMUNITYPOST_NodePostInfo) {Api_NodeAaa_Bbb} long3 测试3
   *
   * @block [Api_DynamicEntity]
   * @apiSuccess (Api_DynamicEntity) {[T]} entity 动态实体
   * @apiSuccess (Api_DynamicEntity) {string} typeName 实体名
-  * @apiSuccess (Api_DynamicEntity) {string} Field_-VDfw 
-  * @apiSuccess (Api_DynamicEntity) {string} Field_isDR_ 
   *
   * @block [Api_NodeAaa_Bbb]
   * @apiSuccess (Api_NodeAaa_Bbb) {Api_NodeCcc_Ddd} url222 seg2222
@@ -53,7 +52,6 @@
   * @apiSuccess (Api_COMMUNITYPOST_ImageInfo) {string} linkUrl 跳转链接
   *
   * @block [Api_COMMUNITYPOST_NodeTagInfo]
-  * @apiSuccess (Api_COMMUNITYPOST_NodeTagInfo) {string} Field_MfFay 
   * @apiSuccess (Api_COMMUNITYPOST_NodeTagInfo) {string} linkUrl123 跳转链接123
   * @apiSuccess (Api_COMMUNITYPOST_NodeTagInfo) {string} 123 123跳转链接123
   *
@@ -65,4 +63,10 @@
   * @apiSuccess (Api_COMMUNITYPOST_TextInfo) {string} text 文字
   * @apiSuccess (Api_COMMUNITYPOST_TextInfo) {string} text1 文字1
   * @apiSuccess (Api_COMMUNITYPOST_TextInfo) {string} text2 文字2
+  *
+  *
+  * @apiError (Error_msg) {PARAM_ERROR_NUMBER_4000003} 4000003 参数错误
+  * @apiError (Error) {PARAM_ERROR_NUMBER_4000001} 4000001 参数错误1
+  * @apiError (Error_msg) {123adasd} Field_9yWxI 123
+  * @apiError (Error_msg) {asdasdsad} Field_N5TYH werwer
   */

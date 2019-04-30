@@ -75,13 +75,11 @@ export default {
       item.nodes.forEach(node => {
         node.entity = item.type;
       });
-      console.log(item)
     },
     toggleShowChild(item) {
       item.showChild = !item.showChild;
     },
     addField(item, index, command) {
-      console.log(item.entity)
       const _item = {
         desc: "",
         isList: false,
@@ -94,15 +92,13 @@ export default {
       };
       const tag = command || this.tooltip(item.type).tag;
       if(tag === 'child') {
-        // console.log(this.content[index+1].entity) //\[\w+\]$
         this.content[index].showChild = true;
-        if(/^Api_/ig.test(item.type) || /^list\[\w+]$/ig.test(item.type)) {
+        if(/^Api_/ig.test(item.type) || /^list\[Api_\w+\]$/ig.test(item.type)) {
           _item.entity = item.type;
-          if(/^list\[\w+]$/ig.test(item.type)) {
+          if(/^list\[Api_\w+\]$/ig.test(item.type)) {
             _item.entity = item.type.match(/\[(.+?)\]$/ig)[0].replace('[', '');
             _item.entity = _item.entity.replace(']', '');
           }
-          console.log(_item.entity)
         }
         item.nodes.push(_item);
       } else {
@@ -115,7 +111,7 @@ export default {
     // 判断类型是否是对象
     isObject(type) {
       const test = /^Api_/ig.test(type) ||
-                   /^list\[\w+]$/ig.test(type) ||
+                   /^list\[Api_\w+\]$/ig.test(type) ||
                    type == 'array' ||
                    type == 'object';
       return test;

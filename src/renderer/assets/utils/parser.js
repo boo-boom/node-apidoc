@@ -95,6 +95,7 @@ function createOutputFiles(api, cb) {
     try {
       cb && cb(JSON.parse(api.data));
     } catch(err) {
+      console.log(err)
       cb && cb(false);
     }
   }
