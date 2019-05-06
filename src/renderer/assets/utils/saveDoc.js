@@ -55,22 +55,22 @@ const unique = (arr) => {
 }
 
 const saveBase = (info) => {
-  const str = `
-  * @api {post} ${methodName(info.methodName)[0]}.${methodName(info.methodName)[1]} ${methodName(info.methodName)[1]}
-  *
-  * @apiDescription
-  * "title":"${info.description}",
-  * "groupOwner":"${info.groupOwner}",
-  * "methodOwner":"${info.methodOwner}",
-  * "securityLevel":"${info.securityLevel}",
-  * "returnType":"${nodeType(info.returnType)}",
-  * "state":"${info.state}",
-  * "detail":"${info.detail}",
-  * "encryptionOnly":${info.encryptionOnly},
-  * "needVerify":${info.needVerify}
-  *
-  * @apiGroup ${methodName(info.methodName)[0]}
-  * `;
+  const str =
+`* @api {post} ${methodName(info.methodName)[0]}.${methodName(info.methodName)[1]} ${methodName(info.methodName)[1]}
+ *
+ * @apiDescription
+ * "title":"${info.description}",
+ * "groupOwner":"${info.groupOwner}",
+ * "methodOwner":"${info.methodOwner}",
+ * "securityLevel":"${info.securityLevel}",
+ * "returnType":"${nodeType(info.returnType)}",
+ * "state":"${info.state}",
+ * "detail":${info.detail === '' ? '""' : info.detail},
+ * "encryptionOnly":${info.encryptionOnly},
+ * "needVerify":${info.needVerify}
+ *
+ * @apiGroup ${methodName(info.methodName)[0]}
+ * `;
   return {
     baseStr: str,
     returnType: nodeType(info.returnType),
@@ -84,9 +84,9 @@ const saveParams = (info) => {
   for(let i = 0; i < list.length; i++) {
     if(list[i].type) {
       if(i === 0) {
-        str += `*\n  * @block [${list[i].type}]`;
+        str += `*\n * @block [${list[i].type}]`;
       } else {
-        str += `\n  *\n  * @block [${list[i].type}]`;
+        str += `\n *\n * @block [${list[i].type}]`;
       }
     } else {
       str += `*`;
@@ -95,9 +95,9 @@ const saveParams = (info) => {
       list[i].nodes = unique(list[i].nodes);
       const nodes = list[i].nodes[j];
       if(nodes.isParame) {
-        str += `\n  * @apiParam {${nodes.type}} ${nodes.isRequired ? nodes.name : '['+nodes.name+']'} ${nodes.desc || nodes.description}`;
+        str += `\n * @apiParam {${nodes.type}} ${nodes.isRequired ? nodes.name : '['+nodes.name+']'} ${nodes.desc || nodes.description}`;
       } else {
-        str += `\n  * @apiParam (${list[i].type}) {${nodes.type}} ${nodes.name} ${nodes.desc || nodes.description}`;
+        str += `\n * @apiParam (${list[i].type}) {${nodes.type}} ${nodes.name} ${nodes.desc || nodes.description}`;
       }
     }
   }
@@ -112,15 +112,15 @@ const saveRespStructList = (info, dynamic, dynamicEntityName) => {
   for(let i = 0; i < list.length; i++) {
     if(dynamicEntityName.includes(list[i].type)) {
       if(i === 0) {
-        str += `*\n  * @block [${list[i].type}]`;
+        str += `*\n * @block [${list[i].type}]`;
       } else {
-        str += `\n  *\n  * @block [${list[i].type}]`;
+        str += `\n *\n * @block [${list[i].type}]`;
       }
     } else {
       if(i === 0) {
-        str += `*\n  * @block [${nodeType(list[i].type)}]`;
+        str += `*\n * @block [${nodeType(list[i].type)}]`;
       } else {
-        str += `\n  *\n  * @block [${nodeType(list[i].type)}]`;
+        str += `\n *\n * @block [${nodeType(list[i].type)}]`;
       }
     }
     for(let j = 0; j < list[i].nodes.length; j++) {
@@ -128,9 +128,9 @@ const saveRespStructList = (info, dynamic, dynamicEntityName) => {
       const nodes = list[i].nodes[j];
       if(!nodes.isDynamic) {
         if(dynamicEntityName.includes(list[i].type)) {
-          str += `\n  * @apiSuccess (${list[i].type}) {${nodeType(nodes.type)}} ${nodes.name} ${nodes.desc}`;
+          str += `\n * @apiSuccess (${list[i].type}) {${nodeType(nodes.type)}} ${nodes.name} ${nodes.desc}`;
         } else {
-          str += `\n  * @apiSuccess (${nodeType(list[i].type)}) {${nodeType(nodes.type)}} ${nodes.name} ${nodes.desc}`;
+          str += `\n * @apiSuccess (${nodeType(list[i].type)}) {${nodeType(nodes.type)}} ${nodes.name} ${nodes.desc}`;
         }
       }
     }
@@ -142,7 +142,7 @@ const saveError = (info) => {
   let str = '';
   // console.log(info)
   for(let i = 0; i < info.length; i++) {
-    str += `\n  * @apiError (${info[i].group}) {${info[i].type}} ${info[i].field} ${info[i].description}`
+    str += `\n * @apiError (${info[i].group}) {${info[i].type}} ${info[i].field} ${info[i].description}`
   }
   return str;
 }
@@ -150,14 +150,13 @@ const saveError = (info) => {
 const saveDoc = (apiDate, dynamicEntityName) => {
   const doc =
 `/**
-  *
-  ${saveBase(apiDate.baseInfo).baseStr}
-  ${saveParams(apiDate.params)}
-  *
-  ${saveRespStructList(apiDate.respStructList, apiDate.dynamicEntity, dynamicEntityName)}
-  *
-  *${saveError(apiDate.error)}
-  */`;
+ ${saveBase(apiDate.baseInfo).baseStr}
+ ${saveParams(apiDate.params)}
+ *
+ ${saveRespStructList(apiDate.respStructList, apiDate.dynamicEntity, dynamicEntityName)}
+ *
+ *${saveError(apiDate.error)}
+ */`;
   return {
     doc,
     methodName: saveBase(apiDate.baseInfo).methodName

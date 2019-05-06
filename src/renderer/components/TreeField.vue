@@ -9,7 +9,7 @@
           <el-input size="mini" placeholder="字段名" v-model="item.entity" v-if="type == 'dynamic'"></el-input>
           <el-input size="mini" placeholder="字段名" v-model="item.name" v-else></el-input>
         </el-col>
-        <el-col :span="7">
+        <el-col :span="8">
           <el-input size="mini" placeholder="类型" value="Api_DynamicEntity" v-if="type == 'dynamic'" disabled></el-input>
           <div v-else>
             <el-input size="mini" placeholder="类型" v-model="item.type" @change="editType(item)" v-if="!item.nodes.length || !item.type"></el-input>
@@ -29,7 +29,7 @@
             </el-tooltip>
           </div>
         </el-col>
-        <el-col :span="2" class="btns">
+        <el-col :span="1" class="btns">
           <i class="el-icon-close" v-if="depth > 0 || content.length > 1" @click="removeField(index)"></i>
           <el-tooltip class="pd-0" effect="dark" :content="tooltip(item.type).text" placement="top" v-if="depth > 0 || content.length > 1">
             <el-button type="text" icon="el-icon-plus" @click="addField(item, index)"></el-button>

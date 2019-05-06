@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <SystemInformation/>
+    <SystemInformation v-if="false"/>
     <router-view></router-view>
   </div>
 </template>
@@ -9,7 +9,16 @@
 import SystemInformation from "@/components/SystemInformation";
 export default {
   name: "electron-api",
-  components: { SystemInformation }
+  components: { SystemInformation },
+  // mounted() {
+  //   const tray = new remote.Tray(
+  //     require("path").resolve(__dirname, "./../../static/img/logo_small.png")
+  //   );
+
+  //   tray.on("drop-files", async (event, files) => {
+  //     console.log(event, files)
+  //   });
+  // },
 };
 </script>
 

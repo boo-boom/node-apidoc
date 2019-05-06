@@ -59,6 +59,7 @@ function createDoc(options) {
     api = apidoc.parse(app.options);
 
     if (api === true) {
+      alert('请检查数据格式');
       app.log.info('Nothing to do.');
       return true;
     }

@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, Menu, Tray, globalShortcut } from 'electron'
 import '../renderer/store'
 /**
  * Set `__static` path to static files in production
@@ -23,12 +23,64 @@ function createWindow () {
     width: 1150
   })
 
+  if (process.platform === 'darwin') {
+    const template = [
+      {
+        label: "Application",
+        submenu: [
+          { label: "Quit", accelerator: "Command+Q", click: function () { app.quit(); } }
+        ]
+      },
+      {
+        label: "编辑",
+        submenu: [
+          { role: 'undo', label: '撤销' },
+          { role: 'redo', label: '取消撤销' },
+          { type: 'separator'},
+          { role: 'cut', label: '剪切' },
+          { role: 'copy', label: '复制' },
+          { role: 'paste', label: '粘贴' },
+          { role: 'delete', label: '删除' },
+          { role: 'selectall', label: '全选' }
+        ]
+      }
+    ];
+    Menu.setApplicationMenu(Menu.buildFromTemplate(template))
+  } else {
+    Menu.setApplicationMenu(null)
+  }
+
+  let tray = new Tray(require("path").join(__static, "./img/logo_small.png"))
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: '退出',
+      type: 'checkbox',
+      checked: false,
+      click: function() {
+        app.quit();
+      }
+    }
+  ])
+  tray.setToolTip('node-api生成工具')
+  tray.setContextMenu(contextMenu)
+
   mainWindow.loadURL(winURL)
 
   mainWindow.on('closed', () => {
     mainWindow = null
   })
 
+  mainWindow.on('focus', () => {
+    globalShortcut.register('CommandOrControl+F', function () {
+      if (mainWindow && mainWindow.webContents) {
+        mainWindow.webContents.send('on-find', '')
+      }
+    })
+  })
+
+  mainWindow.on('blur', () => {
+    globalShortcut.unregister('CommandOrControl+F')
+  })
 
 }
 

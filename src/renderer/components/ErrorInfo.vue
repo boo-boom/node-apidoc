@@ -14,10 +14,10 @@
         <el-col :span="7">
           <el-input size="mini" placeholder="类型" v-model="item.type"></el-input>
         </el-col>
-        <el-col :span="5">
+        <el-col :span="6">
           <el-input size="mini" placeholder="备注" v-model="item.description"></el-input>
         </el-col>
-        <el-col :span="2" class="btns">
+        <el-col :span="1" class="btns">
           <i class="el-icon-close" @click="removeField(index)"></i>
           <i class="el-icon-plus" @click="addField(item, index)"></i>
         </el-col>

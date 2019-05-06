@@ -10,7 +10,7 @@ export default `
  * "securityLevel":"Anonym",
  * "returnType":"Api_AESTHETICSLAB_LectureAllInfo_NodeResp",
  * "state":"OPEN",
- * "detail": null,
+ * "detail":null,
  * "encryptionOnly":false,
  * "needVerify":false
  *

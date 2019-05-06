@@ -16,7 +16,7 @@ function fomartJson(api_data, callback) {
     let mainInfo = JSON.parse(descStr.replace(/&quot;/ig, '"'))
     new_json.description = mainInfo.title
     new_json.origin = 'node' //mainInfo.origin,
-    new_json.detail = mainInfo.detail ? mainInfo.detail : ''
+    new_json.detail = mainInfo.detail
     new_json.encryptionOnly = mainInfo.encryptionOnly
     new_json.groupOwner = mainInfo.groupOwner
     new_json.groupName = json.group

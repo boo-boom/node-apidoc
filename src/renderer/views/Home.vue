@@ -1,13 +1,15 @@
 <template>
   <div class="home-container">
-    <div class="left">
-      <el-input type="textarea" resize="none" :rows="2" placeholder="请将apiDoc粘贴至此" v-show="!editIsJson" v-model="apiDocStr"></el-input>
-      <div id="javascript-editor" v-show="editIsJson"></div>
-      <el-button class="json-doc" size="small" type="warning" icon="el-icon-upload2"  @click="typeTab">{{editIsJson?'JSON模式':'DOC模式'}}</el-button>
-      <el-button class="transform-doc" size="small" type="primary" :icon="showTfLoading?'el-icon-loading':'el-icon-sort'" @click="docToJson(editIsJson)"> 文档转换</el-button>
-      <el-button class="generate-doc" size="small" type="danger" :icon="showGeLoading?'el-icon-loading':'el-icon-download'" :disabled="!docLoadDone" @click="jsonToDoc"> 文档生成</el-button>
+    <div class="code-edit" v-if="!editorSuccess">
+      <editor v-model="apiDocStr" @init="editorInit" lang="javascript" theme="chrome" width="100%" height="100%"></editor>
     </div>
-    <div class="right">
+    <div class="btns-group">
+      <el-button class="json-doc" size="small" type="warning" icon="el-icon-upload2" @click="typeTab" v-show="!editorSuccess">{{editIsJson?'JSON模式':'DOC模式'}}</el-button>
+      <el-button class="json-doc" size="small" type="warning" icon="el-icon-upload2" @click="editorSuccess = !editorSuccess" v-show="editorSuccess">修改apidoc</el-button>
+      <el-button class="transform-doc" size="small" type="primary" :icon="showTfLoading?'el-icon-loading':'el-icon-sort'" @click="docToJson" v-show="!editorSuccess"> 文档转换</el-button>
+      <el-button class="generate-doc" size="small" type="danger" :icon="showGeLoading?'el-icon-loading':'el-icon-download'" :disabled="!docLoadDone" @click="jsonToDoc('ruleForm')" v-show="editorSuccess"> 文档生成</el-button>
+    </div>
+    <div class="json-tree-content">
       <div v-if="docLoadDone">
         <!-- 基础信息 -->
         <el-form :model="lastObject" :rules="rules" ref="ruleForm" label-width="100px" class="ruleForm">
@@ -79,11 +81,10 @@ const fs = require('fs');
 const { fomartJson } = require('@/assets/utils/docJsonFormat')
 const filePath = path.resolve(__dirname, '../../../static/example/apiDocStr.js');
 import { saveDoc } from '@/assets/utils/saveDoc.js';
-import { remote } from "electron";
+import { remote, ipcRenderer } from "electron";
+import { FindInPage } from 'electron-find'
 import nanoid from 'nanoid';
 import generateSchema from "generate-schema/src/schemas/json.js";
-import ace from "brace";
-import "brace/mode/json";
 import { createDoc } from "@/assets/utils/parser.js";
 import { nodeType, methodName, isEntity } from "@/assets/utils/nodes.js";
 import BaseInfo from '@/components/BaseInfo';
@@ -93,13 +94,13 @@ import ErrorInfo from "@/components/ErrorInfo";
 
 export default {
   name: "home-container",
-  components: { BaseInfo, ParamsInfo, TreeField, ErrorInfo },
+  components: { BaseInfo, ParamsInfo, TreeField, ErrorInfo, editor: require('vue2-ace-editor') },
   data() {
     const verApiName = (rule, value, callback) => {
       if (!value) {
         return callback(new Error("请输入接口名称"));
       }
-      if (!/^node_(\w+\.[a-zA-Z0-9]+)$/gi.test(value)) {
+      if (!/^(\w+\.[a-zA-Z0-9]+)$/gi.test(value)) {
         return callback(new Error("接口名格式错误"));
       }
       callback();
@@ -114,7 +115,7 @@ export default {
       entityName: [],       // 非动态实体名
       dynamicEntity: [],    // 动态实体名
       editIsJson: false,    // 是否是导入json
-      editor: null,         // json编辑器
+      editorSuccess: false, // 编辑器是否完成编辑
       jsonState: null,      // 导入json后数据状态
       docFileName: '',      // 保存文档时的文件名
       dialogFormVisible: false, // 保存文档时输入文件名的dialog
@@ -138,26 +139,15 @@ export default {
   mounted() {
     this.apiDocStr = apiDocStr;
     this.$nextTick(() => {
-      if (!this.editor) {
-        this.editor = ace.edit("javascript-editor");
-        this.editor.getSession().setMode("ace/mode/json");
-        this.editor.getSession().on("change", e => {
-          // 捕获json格式错误信息
-          const jsonState = {};
-          try {
-            const value = this.editor.getValue();
-            const obj = JSON.parse(value);
-            jsonState.data = obj;
-            jsonState.format = true;
-          } catch (err) {
-            jsonState.format = false;
-            jsonState.forat = err.message;
-          }
-          this.jsonState = jsonState;
-          this.editor.clearSelection();
-        });
-      }
-    });
+      let findInPage = new FindInPage(remote.getCurrentWebContents(), {
+        preload: true,
+        offsetTop: 40,
+        offsetRight: 10
+      })
+      ipcRenderer.on('on-find', (e, args) => {
+        findInPage.openFindWindow()
+      })
+    })
   },
   // watch: {
   //   lastObject: {
@@ -183,54 +173,86 @@ export default {
     }
   },
   methods: {
+    editorInit: function () {
+        require('brace/ext/language_tools') //language extension prerequsite...
+        require('brace/mode/html')
+        require('brace/mode/javascript')    //language
+        require('brace/mode/less')
+        require('brace/theme/chrome')
+        require('brace/snippets/javascript') //snippet
+    },
     // 转换文档
-    docToJson(isJson) {
+    docToJson() {
       this.showTfLoading = true;
-      if(isJson) {
-        const editorValue = this.editor.getValue();
-        if (editorValue) {
-          if (!this.jsonState.format) {
-            this.$notify.error({
-              title: "错误",
-              message: `json数据格式有误：${this.jsonState.forat}`
-            });
-          } else {
-            this.jsonState.schema = generateSchema(this.jsonState.data);
-            this.lastObject.respStructList = this.getJsonSchemaTree(this.jsonState.schema.properties);
-            this.lastObject.baseInfo = {
-              methodName: '',
-              description: '',
-              groupOwner: '',
-              methodOwner: '',
-              securityLevel: '',
-              state: ''
-            };
-            this.lastObject.params = [{
-              description: "请求参数",
-              injectOnly: false,
-              isList: false,
-              isRequired: true,
-              isRsaEncrypt: false,
-              name: "",
-              nodes: [],
-              sequence: "",
-              type: "string",
-            }];
-            // console.log(this.getJsonSchemaTree(this.jsonState.schema.properties))
-          }
-        } else {
+      if(!this.apiDocStr) {
+        this.$notify.error({
+          title: "错误",
+          message: "数据不能为空"
+        });
+        return
+      }
+      if(this.editIsJson) {
+        let errMsg = '';
+        let apiDocStr = {};
+        try {
+          apiDocStr = JSON.parse(this.apiDocStr);
+        } catch(err) {
+          errMsg = err.message;
+        }
+        if (errMsg) {
           this.$notify.error({
             title: "错误",
-            message: "json不能为空"
+            message: `json数据格式有误：${errMsg}`
           });
+        } else {
+          this.jsonState = {};
+          this.jsonState.schema = generateSchema(apiDocStr);
+          this.lastObject.respStructList = this.getJsonSchemaTree(this.jsonState.schema.properties);
+          this.lastObject.baseInfo = {
+            title: "",
+            groupOwner: "王柯迪",
+            methodOwner: "",
+            securityLevel: "Anonym",
+            returnType: "",
+            state: "OPEN",
+            detail: null,
+            encryptionOnly: false,
+            needVerify: false
+          };
+          this.lastObject.params = [{
+            description: "请求参数",
+            injectOnly: false,
+            isList: false,
+            isRequired: true,
+            isRsaEncrypt: false,
+            name: "",
+            nodes: [],
+            sequence: "",
+            type: "string",
+          }];
+          this.editorSuccess = true;
+          // console.log(this.lastObject)
         }
         this.showTfLoading = false;
       } else {
         // 写入文件
+        this.editorSuccess = false;
         fs.writeFile(filePath, this.apiDocStr, (err) => {
           this.showTfLoading = false;
           if(err) {
-            console.log(err.message)
+            this.$notify.error({
+              title: "错误",
+              message: `写入文件错误：${err.message}`
+            });
+            return
+          }
+          try {
+            eval(this.apiDocStr)
+          } catch(err) {
+            this.$notify.error({
+              title: "错误",
+              message: `数据格式有误：${err.message}`
+            });
             return
           }
           createDoc({
@@ -250,6 +272,7 @@ export default {
                 }
 
                 fomartJson(api_data, infoJson => {
+                  console.log(infoJson)
                   const curApi = infoJson.apiList[0];
                   // 获取初始化数据
                   this.lastObject.baseInfo = {
@@ -293,6 +316,7 @@ export default {
                     message: "创建转换成功",
                     type: "success"
                   });
+                  this.editorSuccess = true;
                 });
               }
             }
@@ -301,25 +325,36 @@ export default {
       }
     },
     // 获取修改后的文档
-    jsonToDoc() {
-      this.showGeLoading = true;
-      console.log(this.lastObject)
-      remote.dialog.showOpenDialog(
-        {
-          title: "选择当前文档所需存放的目录",
-          properties: ["openDirectory"],
-        },
-        filePaths => {
-          if (filePaths) {
-            this.showGeLoading = false;
-            const { doc, methodName} = saveDoc(this.lastObject, this.dynamicEntity);
-            this.dialogFormVisible = true;
-            this.docFileName = methodName;
-            this.docPath = filePaths[0];
-            this.docToFile = doc.replace(/\s+\*\s/, ' *');
-          }
+    jsonToDoc(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          this.showGeLoading = true;
+          console.log(this.lastObject)
+          remote.dialog.showOpenDialog(
+            {
+              title: "选择当前文档所需存放的目录",
+              properties: ["openDirectory"],
+            },
+            filePaths => {
+              if (filePaths) {
+                this.showGeLoading = false;
+                const { doc, methodName} = saveDoc(this.lastObject, this.dynamicEntity);
+                this.dialogFormVisible = true;
+                this.docFileName = methodName;
+                this.docPath = filePaths[0];
+                this.docToFile = doc;
+                this.apiDocStr = doc;
+              }
+            }
+          );
+        } else {
+          this.$notify.error({
+            title: "错误",
+            message: "初始化错误!!"
+          });
+          return false;
         }
-      );
+      });
     },
     // 保存修改后文档至文件中
     saveDocToFile() {
@@ -505,47 +540,29 @@ export default {
   min-height: 100vh;
   overflow: hidden;
   display: flex;
-  .left {
-    width: 30%;
-    position: relative;
-    #javascript-editor {
-      height: 100%;
-    }
-    .transform-doc {
+  .code-edit {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 10;
+    background: #eee;
+    box-sizing: border-box;
+  }
+  .btns-group {
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 11;
+    .transform-doc, .json-doc, .generate-doc {
       width: 110px;
-      position: absolute;
-      top: 32px;
-      right: 0;
-      z-index: 9;
       border-radius: 0;
-    }
-    .json-doc {
-      width: 110px;
-      position: absolute;
-      top: 0;
-      right: 0;
-      z-index: 9;
-      border-radius: 0;
-    }
-    .generate-doc {
-      width: 110px;
-      position: absolute;
-      top: 64px;
-      right: 0;
-      z-index: 9;
-      border-radius: 0 0 0 5px;
-    }
-    .el-textarea {
-      height: 100vh;
-      .el-textarea__inner {
-        border-radius: 0;
-        border: none;
-        height: 100%;
-      }
+      margin-left: 0;
     }
   }
-  .right {
-    width: 70%;
+  .json-tree-content {
+    width: 100%;
     padding: 15px;
     position: relative;
     overflow-y: scroll;
