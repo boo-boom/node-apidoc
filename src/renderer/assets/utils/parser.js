@@ -5,8 +5,8 @@ var path    = require('path');
 var winston = require('winston');
 
 var defaults = {
-  src       : path.resolve(__dirname, '../../../../static/example'),
-  dest      : path.resolve(__dirname, '../../../../static/apiDoc'),
+  src       : path.join(__static, './example'),
+  dest      : path.join(__static, './apiDoc'),
   debug     : false,
   silent    : false,
   verbose   : false,

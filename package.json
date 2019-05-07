@@ -1,8 +1,8 @@
 {
-  "name": "electron-api",
-  "version": "0.0.1",
+  "name": "yit-apidoc",
+  "version": "1.0.0",
   "author": "czx <chenzhixiang@yit.com>",
-  "description": "An electron-vue project",
+  "description": "YIT node文档编辑工具",
   "license": null,
   "main": "./dist/electron/main.js",
   "scripts": {
@@ -17,8 +17,8 @@
     "postinstall": ""
   },
   "build": {
-    "productName": "electron-api",
-    "appId": "com.example.yourapp",
+    "productName": "一条API",
+    "appId": "com.yit.apidoc",
     "directories": {
       "output": "build"
     },
@@ -53,7 +53,6 @@
   "dependencies": {
     "apidoc-core": "^0.8.3",
     "axios": "^0.18.0",
-    "brace": "^0.11.1",
     "electron-find": "^1.0.5",
     "element-ui": "^2.7.0",
     "fs-extra": "^7.0.1",

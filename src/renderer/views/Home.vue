@@ -79,7 +79,7 @@ import apiDocStr from './../../../static/apiDoc.js';
 const path = require('path');
 const fs = require('fs');
 const { fomartJson } = require('@/assets/utils/docJsonFormat')
-const filePath = path.resolve(__dirname, '../../../static/example/apiDocStr.js');
+const filePath = path.join(__static, './example/apiDocStr.js');
 import { saveDoc } from '@/assets/utils/saveDoc.js';
 import { remote, ipcRenderer } from "electron";
 import { FindInPage } from 'electron-find'

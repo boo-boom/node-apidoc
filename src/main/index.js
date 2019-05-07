@@ -23,6 +23,24 @@ function createWindow () {
     width: 1150
   })
 
+  mainWindow.loadURL(winURL)
+
+  mainWindow.on('closed', () => {
+    mainWindow = null
+  })
+
+  mainWindow.on('focus', () => {
+    globalShortcut.register('CommandOrControl+F', function () {
+      if (mainWindow && mainWindow.webContents) {
+        mainWindow.webContents.send('on-find', '')
+      }
+    })
+  })
+
+  mainWindow.on('blur', () => {
+    globalShortcut.unregister('CommandOrControl+F')
+  })
+
   if (process.platform === 'darwin') {
     const template = [
       {
@@ -50,37 +68,17 @@ function createWindow () {
     Menu.setApplicationMenu(null)
   }
 
-  let tray = new Tray(require("path").join(__static, "./img/logo_small.png"))
+  const tray = new Tray(require("path").join(__static, "./img/logo_small.png"))
   const contextMenu = Menu.buildFromTemplate([
     {
       label: '退出',
-      type: 'checkbox',
-      checked: false,
       click: function() {
         app.quit();
       }
     }
   ])
-  tray.setToolTip('node-api生成工具')
   tray.setContextMenu(contextMenu)
-
-  mainWindow.loadURL(winURL)
-
-  mainWindow.on('closed', () => {
-    mainWindow = null
-  })
-
-  mainWindow.on('focus', () => {
-    globalShortcut.register('CommandOrControl+F', function () {
-      if (mainWindow && mainWindow.webContents) {
-        mainWindow.webContents.send('on-find', '')
-      }
-    })
-  })
-
-  mainWindow.on('blur', () => {
-    globalShortcut.unregister('CommandOrControl+F')
-  })
+  tray.setToolTip('node-api生成工具')
 
 }
 
