@@ -31,14 +31,14 @@
         </el-col>
         <el-col :span="1" class="btns">
           <i class="el-icon-close" v-if="depth > 0 || content.length > 1" @click="removeField(index)"></i>
-          <el-tooltip class="pd-0" effect="dark" :content="tooltip(item.type).text" placement="top" v-if="depth > 0 || content.length > 1">
+          <el-tooltip class="pd-0" effect="dark" :content="tooltip(item.type, item.isDynamic).text" placement="top" v-if="depth > 0 || content.length > 1">
             <el-button type="text" icon="el-icon-plus" @click="addField(item, index)"></el-button>
           </el-tooltip>
           <el-dropdown @command="addField(item, index, $event)" v-else>
             <el-button type="text" icon="el-icon-plus"></el-button>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="sibling">添加兄弟节点</el-dropdown-item>
-              <el-dropdown-item command="child" v-if="isObject(item.type)">添加子节点</el-dropdown-item>
+              <el-dropdown-item command="child" v-if="isObject(item.type, item.isDynamic)">添加子节点</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </el-col>
@@ -72,7 +72,7 @@ export default {
   },
   methods: {
     editType(item) {
-      if(this.isObject(item.type)) {
+      if(this.isObject(item.type, item.isDynamic)) {
         item.nodes.forEach(node => {
           node.entity = item.type;
         });
@@ -93,7 +93,7 @@ export default {
         entity: item.entity
       };
       const tag = command || this.tooltip(item.type).tag;
-      if(tag === 'child') {
+      if(tag === 'child' || item.isDynamic) {
         this.content[index].showChild = true;
         if(/^Api_/ig.test(item.type) || /^list\[Api_\w+\]$/ig.test(item.type)) {
           _item.entity = item.type;
@@ -111,16 +111,17 @@ export default {
       this.content.splice(index, 1);
     },
     // 判断类型是否是对象
-    isObject(type) {
+    isObject(type, isDynamic) {
       const test = /^Api_/ig.test(type) ||
                    /^list\[Api_\w+\]$/ig.test(type) ||
+                   isDynamic ||
                    type == 'array' ||
                    type == 'object';
       return test;
     },
     // 判断是否是子节点，用于判断添加字段时的逻辑处理
-    tooltip(type) {
-      const test = this.isObject(type);
+    tooltip(type, isDynamic) {
+      const test = this.isObject(type, isDynamic);
       return test ? {tag: 'child', text: '添加子节点'} : {tag: 'sibling', text: '添加兄弟节点'};
     },
     editIsList(item) {

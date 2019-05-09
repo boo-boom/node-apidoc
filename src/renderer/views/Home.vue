@@ -5,11 +5,11 @@
     </div>
     <div class="btns-group">
       <el-button class="json-doc" size="small" type="warning" icon="el-icon-upload2" @click="typeTab" v-show="!editorSuccess">{{editIsJson?'JSON模式':'DOC模式'}}</el-button>
-      <el-button class="json-doc" size="small" type="warning" icon="el-icon-upload2" @click="editorSuccess = !editorSuccess" v-show="editorSuccess">修改apidoc</el-button>
+      <el-button class="json-doc" size="small" type="warning" icon="el-icon-upload2" @click="backEdit" v-show="editorSuccess">修改apidoc</el-button>
       <el-button class="transform-doc" size="small" type="primary" :icon="showTfLoading?'el-icon-loading':'el-icon-sort'" @click="docToJson" v-show="!editorSuccess"> 文档转换</el-button>
       <el-button class="generate-doc" size="small" type="danger" :icon="showGeLoading?'el-icon-loading':'el-icon-download'" :disabled="!docLoadDone" @click="jsonToDoc('ruleForm')" v-show="editorSuccess"> 文档生成</el-button>
     </div>
-    <div class="json-tree-content">
+    <div class="json-tree-content scrollStyle">
       <div v-if="docLoadDone">
         <!-- 基础信息 -->
         <el-form :model="lastObject" :rules="rules" ref="ruleForm" label-width="100px" class="ruleForm">
@@ -36,11 +36,12 @@
           </ul>
           <tree-field :content="lastObject.respStructList" :depth="0" />
           <!-- 动态实体 -->
-          <div v-if="lastObject.dynamicEntity.length">
+          <div>
             <div class="title" style="paddingTop:20px;">
               <span>动态实体 [谨慎修改]</span>
+              <el-button size="mini" type="warning" icon="el-icon-upload2" @click="addDynamicEntity">添加动态实体</el-button>
             </div>
-            <tree-field type="dynamic" :content="lastObject.dynamicEntity" :depth="0" />
+            <tree-field type="dynamic" :content="lastObject.dynamicEntity" :depth="0" v-if="lastObject.dynamicEntity.length"/>
           </div>
           <!-- error -->
           <div class="title" style="paddingTop:20px;">
@@ -75,7 +76,7 @@
 </template>
 
 <script>
-// import apiDocStr from './../../../static/apiDoc.js';
+// import apiDocStr from './../../../static/test/apiDoc.js';
 const path = require('path');
 const fs = require('fs');
 const { fomartJson } = require('@/assets/utils/docJsonFormat')
@@ -110,7 +111,6 @@ export default {
       showTfLoading: false, // 正在转换文档
       showGeLoading: false, // 是否可以生成文档
       docPath: '',          // 保存的路径
-      docToFile: '',        // 转换成apiDoc所需要的数据
       allEntityName: [],    // 全部动态实体名
       entityName: [],       // 非动态实体名
       dynamicEntity: [],    // 动态实体名
@@ -270,9 +270,8 @@ export default {
                     this.lastObject.error = this.lastObject.error.concat(api_data[0].error.fields[key])
                   }
                 }
-
                 fomartJson(api_data, infoJson => {
-                  console.log(infoJson)
+                  // console.log(infoJson)
                   const curApi = infoJson.apiList[0];
                   // 获取初始化数据
                   this.lastObject.baseInfo = {
@@ -320,7 +319,7 @@ export default {
                 });
               }
             }
-          });
+          })
         })
       }
     },
@@ -342,7 +341,6 @@ export default {
                 this.dialogFormVisible = true;
                 this.docFileName = methodName;
                 this.docPath = filePaths[0];
-                this.docToFile = doc;
                 this.apiDocStr = doc;
               }
             }
@@ -367,7 +365,7 @@ export default {
             cancelButtonText: '取消',
             type: 'error'
           }).then(() => {
-            fs.writeFileSync(this.docPath, this.docToFile);
+            fs.writeFileSync(this.docPath, this.apiDocStr);
             this.$message({
               type: 'success',
               message: '覆盖成功!'
@@ -384,7 +382,7 @@ export default {
             cancelButtonText: '取消',
             type: 'warning'
           }).then(() => {
-            fs.writeFileSync(this.docPath, this.docToFile);
+            fs.writeFileSync(this.docPath, this.apiDocStr);
             this.$message({
               type: 'success',
               message: '创建成功!'
@@ -402,11 +400,22 @@ export default {
           message: '文件名错误'
         });
       }
-      // console.log(this.docPath, this.docFileName, this.docToFile)
+      // console.log(this.docPath, this.docFileName, this.apiDocStr)
     },
     // 切换状态
     typeTab() {
       this.editIsJson = !this.editIsJson;
+    },
+    // 返回编辑器时
+    backEdit() {
+      this.editorSuccess = !this.editorSuccess
+      const { doc, methodName} = saveDoc(this.lastObject, this.dynamicEntity);
+      this.docFileName = methodName;
+      this.apiDocStr = doc;
+      this.$message({
+        type: 'success',
+        message: '更新文本已内容!'
+      });
     },
     // 获取动态实体
     getDynamicEntity(data) {
@@ -438,7 +447,6 @@ export default {
           });
         }
       }
-      // console.log(dynamicEntityList)
       return dynamicEntityList;
     },
     // 将平铺数据转换成树状结构
@@ -530,6 +538,31 @@ export default {
       };
       this.lastObject.params.push(_item)
     },
+    // 添加动态实体
+    addDynamicEntity() {
+      const _item = {
+        entity: `Api_${nanoid()}`,
+        isDynamic: true,
+        nanoid: nanoid(),
+        nodes: [{
+          desc: "",
+          description: "",
+          entity: "",
+          injectOnly: false,
+          isList: false,
+          isParame: true,
+          isRequired: true,
+          isRsaEncrypt: false,
+          name: `Field_${nanoid(5)}`,
+          nanoid: nanoid(),
+          nodes: [],
+          sequence: "",
+          type: "string",
+        }],
+        showChild: false
+      };
+      this.lastObject.dynamicEntity.push(_item)
+    }
   }
 };
 </script>
@@ -565,6 +598,7 @@ export default {
     width: 100%;
     padding: 15px;
     position: relative;
+    box-sizing: border-box;
     overflow-y: scroll;
     -webkit-overflow-scrolling: touch;
     .title {
@@ -612,6 +646,26 @@ export default {
     .dynamic-entity-title {
       font-size: 14px;
     }
+  }
+
+  .ace_scrollbar-v::-webkit-scrollbar {
+    /*滚动条整体样式*/
+    width: 6px;
+    /*高宽分别对应横竖滚动条的尺寸*/
+    height: 1px;
+  }
+
+  .ace_scrollbar-v::-webkit-scrollbar-thumb {
+    /*滚动条里面小方块*/
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+    background: #f0f0f0;
+  }
+
+  .ace_scrollbar-v::-webkit-scrollbar-track {
+    /*滚动条里面轨道*/
+    border-radius: 10px;
+    background: none;
   }
 }
 </style>

@@ -13,6 +13,7 @@ const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080`
   : `file://${__dirname}/index.html`
 
+let tray = null
 function createWindow () {
   /**
    * Initial window options
@@ -68,18 +69,19 @@ function createWindow () {
     Menu.setApplicationMenu(null)
   }
 
-  const tray = new Tray(require("path").join(__static, "./img/logo_small.png"))
-  const contextMenu = Menu.buildFromTemplate([
-    {
-      label: '退出',
-      click: function() {
-        app.quit();
+  if(!tray) {
+    tray = new Tray(require("path").join(__static, "./img/logo_small.png"))
+    const contextMenu = Menu.buildFromTemplate([
+      {
+        label: '退出',
+        click: function() {
+          app.quit();
+        }
       }
-    }
-  ])
-  tray.setContextMenu(contextMenu)
-  tray.setToolTip('node-api生成工具')
-
+    ])
+    tray.setContextMenu(contextMenu)
+    tray.setToolTip('apidoc转换工具')
+  }
 }
 
 app.on('ready', createWindow)

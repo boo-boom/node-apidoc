@@ -75,8 +75,8 @@ function fomartJson(api_data, callback) {
   });
 
   const result_json = { apiList: resApi, codeList: uniqBy(errorCodeAggregate, 'code') }
-  const _result_json = JSON.stringify({ apiList: resApi, codeList: uniqBy(errorCodeAggregate, 'code') })
-  fs.writeFileSync(path.join(__static, './apiDoc/info.json'), _result_json)
+  // const _result_json = JSON.stringify({ apiList: resApi, codeList: uniqBy(errorCodeAggregate, 'code') })
+  // fs.writeFileSync(path.join(__static, './apiDoc/info.json'), _result_json)
 
   callback && callback(result_json);
   console.log('接口列表json转化完毕')

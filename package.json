@@ -1,12 +1,13 @@
 {
-  "name": "yit-apidoc",
-  "version": "1.0.1",
+  "name": "doc-conversion",
+  "version": "1.0.2",
   "author": "czx <chenzhixiang@yit.com>",
-  "description": "YIT node文档编辑工具",
+  "description": "doc转换编辑工具",
   "license": null,
   "main": "./dist/electron/main.js",
   "scripts": {
     "build": "node .electron-vue/build.js && electron-builder",
+    "build:all": "node .electron-vue/build.js && electron-builder --platform=all",
     "build:dir": "node .electron-vue/build.js && electron-builder --dir",
     "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
     "build:web": "cross-env BUILD_TARGET=web node .electron-vue/build.js",
@@ -17,8 +18,9 @@
     "postinstall": ""
   },
   "build": {
-    "productName": "一条API",
-    "appId": "com.yit.apidoc",
+    "productName": "Conversion",
+    "appId": "com.czx.conversion",
+    "asar": false,
     "directories": {
       "output": "build"
     },
@@ -41,13 +43,13 @@
       ]
     },
     "mac": {
-      "icon": "build/icons/icon.icns"
+      "icon": "icons/icon.icns"
     },
     "win": {
-      "icon": "build/icons/icon.ico"
+      "icon": "icons/icon.ico"
     },
     "linux": {
-      "icon": "build/icons"
+      "icon": "icons"
     }
   },
   "dependencies": {

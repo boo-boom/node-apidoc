@@ -1,77 +1,60 @@
 /**
- * @api {post} node_aestheticslab.getLectureAllInfo getLectureAllInfo
- *
+ * @block [node_aestheticslab.batchGetStoreListByIds]
+ * @api {post} node_aestheticslab.batchGetStoreListByIds batchGetStoreListByIds
  * @apiDescription
- * "title":"获取活动详情",
+ * "title":"美学实验室获取线下门店信息",
+ * 
  * "groupOwner":"王柯迪",
- * "methodOwner":"千云锋",
+ * 
+ * "methodOwner":"陈志祥",
+ * 
  * "securityLevel":"Anonym",
- * "returnType":"Api_NodeAESTHETICSLAB_LectureAllInfo_NodeResp",
+ * 
+ * "returnType":"Api_AESTHTICSLAB_StoreImage_Resp_Node",
+ * 
  * "state":"OPEN",
+ * 
  * "detail":null,
+ * 
  * "encryptionOnly":false,
+ * 
  * "needVerify":false
- *
+ * 
  * @apiGroup node_aestheticslab
  * 
- *
- * @block [Api_AESTHETICSLAB_LectureListSearchParam]
- * @apiParam {Api_AESTHETICSLAB_LectureListSearchParam} lectureListSearchParam 活动列表搜索参数
- * @apiParam (Api_AESTHETICSLAB_LectureListSearchParam) {int} storeId 门店ID
- * @apiParam (Api_AESTHETICSLAB_LectureListSearchParam) {string} lectureType 活动类型 END 往期讲座, NEAR_FUTURE 近期讲座, UNDERWAY 进行中讲座
- *
- * @block [Api_AESTHETICSLAB_PageParameter]
- * @apiParam {Api_AESTHETICSLAB_PageParameter} pageParameter 分页参数
- * @apiParam (Api_AESTHETICSLAB_PageParameter) {int} offset 记录偏移量
- * @apiParam (Api_AESTHETICSLAB_PageParameter) {int} limit 返回记录最大数量
- *
- *
- * @block [Api_NodeAESTHETICSLAB_LectureAllInfo_NodeResp]
- * @apiSuccess (Api_NodeAESTHETICSLAB_LectureAllInfo_NodeResp) {Api_NodeCOMMUNITYPOST_NodePostInfo} postContent 活动内容主体
- * @apiSuccess (Api_NodeAESTHETICSLAB_LectureAllInfo_NodeResp) {Api_NodeAaa_Bbb} postContentqq111 活动内容主体111
- *
- * @block [Api_NodeCOMMUNITYPOST_NodePostInfo]
- * @apiSuccess (Api_NodeCOMMUNITYPOST_NodePostInfo) {List[Api_DynamicEntity]} dynamicEntityList 内容信息 本字段为动态数据类型, 可能类型为以下种类:SegmentInfo, TextInfo, VideoInfo, ImageInfo,
- * @apiSuccess (Api_NodeCOMMUNITYPOST_NodePostInfo) {long} long1 测试1
- * @apiSuccess (Api_NodeCOMMUNITYPOST_NodePostInfo) {long} long2 测试2
- * @apiSuccess (Api_NodeCOMMUNITYPOST_NodePostInfo) {Api_NodeAaa_Bbb} long3 测试3
- *
- * @block [Api_DynamicEntity]
- * @apiSuccess (Api_DynamicEntity) {[T]} entity 动态实体
- * @apiSuccess (Api_DynamicEntity) {string} typeName 实体名
- *
- * @block [Api_NodeAaa_Bbb]
- * @apiSuccess (Api_NodeAaa_Bbb) {Api_NodeCcc_Ddd} url222 seg2222
- * @apiSuccess (Api_NodeAaa_Bbb) {Api_NodeCcc_Ddd} url333 seg333
- * @apiSuccess (Api_NodeAaa_Bbb) {Api_NodeCcc_Ddd} url444 seg4444
- *
- * @block [Api_NodeCcc_Ddd]
- * @apiSuccess (Api_NodeCcc_Ddd) {string} url111 segment链接111
- * @apiSuccess (Api_NodeCcc_Ddd) {string} url222 segment链接222
- *
- * @block [Api_COMMUNITYPOST_ImageInfo]
- * @apiSuccess (Api_COMMUNITYPOST_ImageInfo) {int} id 图片素材ID
- * @apiSuccess (Api_COMMUNITYPOST_ImageInfo) {string} url 图片链接
- * @apiSuccess (Api_COMMUNITYPOST_ImageInfo) {int} width 图宽度
- * @apiSuccess (Api_COMMUNITYPOST_ImageInfo) {int} height 图高度
- * @apiSuccess (Api_COMMUNITYPOST_ImageInfo) {List[Api_COMMUNITYPOST_NodeTagInfo]} tagInfoList 标签信息
- * @apiSuccess (Api_COMMUNITYPOST_ImageInfo) {string} miniprogramAppId 小程序appId
- * @apiSuccess (Api_COMMUNITYPOST_ImageInfo) {string} linkUrl 跳转链接
- *
- * @block [Api_COMMUNITYPOST_NodeTagInfo]
- * @apiSuccess (Api_COMMUNITYPOST_NodeTagInfo) {string} linkUrl123 跳转链接123
- * @apiSuccess (Api_COMMUNITYPOST_NodeTagInfo) {string} 123 123跳转链接123
- *
- * @block [Api_COMMUNITYPOST_SegmentInfo]
- * @apiSuccess (Api_COMMUNITYPOST_SegmentInfo) {Api_NodeAaa_Bbb} aaa bbb链接
- * @apiSuccess (Api_COMMUNITYPOST_SegmentInfo) {Api_NodeAaa_Bbb} aaa123 bbb123链接
- *
- * @block [Api_COMMUNITYPOST_TextInfo]
- * @apiSuccess (Api_COMMUNITYPOST_TextInfo) {string} text 文字
- * @apiSuccess (Api_COMMUNITYPOST_TextInfo) {string} text1 文字1
- * @apiSuccess (Api_COMMUNITYPOST_TextInfo) {string} text2 文字2
- *
- *
- * @apiError (Error_msg) {PARAM_ERROR_NUMBER_4000003} 4000003 参数错误
- * @apiError (Error) {PARAM_ERROR_NUMBER_4000001} 4000001 参数错误1
+ * @apiParam {List[int]} storeIds 门店ID
+ * 
+ * @block [Api_AESTHTICSLAB_StoreImage_Resp_Node] 返回主体
+ * @apiSuccess (Api_AESTHTICSLAB_StoreImage_Resp_Node) {int} id 门店ID
+ * @apiSuccess (Api_AESTHTICSLAB_StoreImage_Resp_Node) {string} name 门店名称
+ * @apiSuccess (Api_AESTHTICSLAB_StoreImage_Resp_Node) {string} nameAbbreviation 门店简称
+ * @apiSuccess (Api_AESTHTICSLAB_StoreImage_Resp_Node) {string} thumbImgUrl 门店图片
+ * @apiSuccess (Api_AESTHTICSLAB_StoreImage_Resp_Node) {string} address 门店地址
+ * @apiSuccess (Api_AESTHTICSLAB_StoreImage_Resp_Node) {string} province 省
+ * @apiSuccess (Api_AESTHTICSLAB_StoreImage_Resp_Node) {string} city 市
+ * @apiSuccess (Api_AESTHTICSLAB_StoreImage_Resp_Node) {string} region 区
+ * @apiSuccess (Api_AESTHTICSLAB_StoreImage_Resp_Node) {string} location 地理位置坐标
+ * @apiSuccess (Api_AESTHTICSLAB_StoreImage_Resp_Node) {string} trafficDirections 交通指导
+ * @apiSuccess (Api_AESTHTICSLAB_StoreImage_Resp_Node) {date} startBusinessTime 开业时间
+ * @apiSuccess (Api_AESTHTICSLAB_StoreImage_Resp_Node) {string} openingTime 营业开始时间
+ * @apiSuccess (Api_AESTHTICSLAB_StoreImage_Resp_Node) {string} closingTime 打烊时间
+ * @apiSuccess (Api_AESTHTICSLAB_StoreImage_Resp_Node) {boolean} showInAestheticLaboratory 是否在美学实验室展示
+ * @apiSuccess (Api_AESTHTICSLAB_StoreImage_Resp_Node) {string} storeMapUrl 门店地图URL
+ * @apiSuccess (Api_AESTHTICSLAB_StoreImage_Resp_Node) {string} surfacePlotUrl 门店封面图
+ * @apiSuccess (Api_AESTHTICSLAB_StoreImage_Resp_Node) {int} storeEnvPictureTotal 门店图片总数（讲座现场+门店环境图片数总和）
+ * @apiSuccess (Api_AESTHTICSLAB_StoreImage_Resp_Node) {int} lastPicType 最后一张图片来自：1:门店环境图，0:讲座现场图，-1:图片总数不够
+ * @apiSuccess (Api_AESTHTICSLAB_StoreImage_Resp_Node) {List[Api_STORE_StoreServeItem_Node]} storeServeItems 设施服务
+ * @apiSuccess (Api_AESTHTICSLAB_StoreImage_Resp_Node) {list[Api_AESTHTICSLAB_StoreEnvPicture_Node]} storeEnvPictures 门店环境图(最多返回4张)
+ * 
+ * @block [Api_STORE_StoreServeItem_Node]
+ * @apiSuccess (Api_STORE_StoreServeItem_Node) {int} id 服务项ID
+ * @apiSuccess (Api_STORE_StoreServeItem_Node) {string} description 描述
+ * @apiSuccess (Api_STORE_StoreServeItem_Node) {string} imageUrl 图片url
+ * @apiSuccess (Api_STORE_StoreServeItem_Node) {int} picType 图片的取自于：1:门店环境图，0:讲座现场图
+ * 
+ * @block [Api_AESTHTICSLAB_StoreEnvPicture_Node]
+ * @apiSuccess (Api_AESTHTICSLAB_StoreEnvPicture_Node) {string} picUrl 图片URL
+ * @apiSuccess (Api_AESTHTICSLAB_StoreEnvPicture_Node) {boolean} isSurfacePlot 是否是封面图
+ * @apiSuccess (Api_AESTHTICSLAB_StoreEnvPicture_Node) {int} height 高
+ * @apiSuccess (Api_AESTHTICSLAB_StoreEnvPicture_Node) {int} width 宽
  */

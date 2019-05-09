@@ -1,5 +1,5 @@
 var _       = require('lodash');
-var fs      = require('fs-extra');
+// var fs      = require('fs-extra');
 var apidoc  = require('apidoc-core');
 var path    = require('path');
 var winston = require('winston');
@@ -26,6 +26,9 @@ function createDoc(options) {
   var api;
 
   options = _.defaults({}, options, defaults);
+
+  // const aaa = fs.readFileSync(path.join(options.src, '/apiDocStr.js')).toString()
+  // alert(options.src)
 
   // Line-Ending.
   if (options.lineEnding) {
