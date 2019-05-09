@@ -80,6 +80,7 @@ const saveBase = (info) => {
 
 const saveParams = (info) => {
   let list = jsonGroup(info);
+  if(!list.length) return '*';
   let str = '';
   for(let i = 0; i < list.length; i++) {
     if(list[i].type) {
