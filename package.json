@@ -6,6 +6,7 @@
   "license": null,
   "main": "./dist/electron/main.js",
   "scripts": {
+    "win32": "node .electron-vue/build.js && electron-builder --platform=win32  --arch=ia32",
     "build": "node .electron-vue/build.js && electron-builder",
     "build:all": "node .electron-vue/build.js && electron-builder --platform=all",
     "build:dir": "node .electron-vue/build.js && electron-builder --dir",
