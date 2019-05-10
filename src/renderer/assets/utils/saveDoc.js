@@ -17,12 +17,14 @@ const jsonGroup = (info) => {
     if (!map[ai.entity]) {
       if(ai.isParame) {
         dest.push({
+          isList: ai.isList,
           type: ai.entity,
           nodes: [ai],
           isParame: ai.isParame
         });
       } else {
         dest.push({
+          isList: ai.isList,
           type: ai.entity,
           nodes: [ai]
         });
@@ -111,7 +113,7 @@ const saveRespStructList = (info, dynamic, dynamicEntityName) => {
   // console.log(list)
   let str = '';
   for(let i = 0; i < list.length; i++) {
-    if(dynamicEntityName.includes(list[i].type)) {
+    if(dynamicEntityName.includes(list[i].type) || list[i].type === 'Api_DynamicEntity') {
       if(i === 0) {
         str += `*\n * @block [${list[i].type}]`;
       } else {
@@ -131,7 +133,13 @@ const saveRespStructList = (info, dynamic, dynamicEntityName) => {
         if(dynamicEntityName.includes(list[i].type)) {
           str += `\n * @apiSuccess (${list[i].type}) {${nodeType(nodes.type)}} ${nodes.name} ${nodes.desc}`;
         } else {
-          str += `\n * @apiSuccess (${nodeType(list[i].type)}) {${nodeType(nodes.type)}} ${nodes.name} ${nodes.desc}`;
+          if(list[i].type === 'Api_DynamicEntity'){
+            str += `\n * @apiSuccess (${list[i].type}) {${nodes.type}} ${nodes.name} ${nodes.desc}`;
+          } else if(nodes.type === 'List[Api_DynamicEntity]') {
+            str += `\n * @apiSuccess (${nodeType(list[i].type)}) {${nodes.type}} ${nodes.name} ${nodes.desc}`;
+          } else {
+            str += `\n * @apiSuccess (${nodeType(list[i].type)}) {${nodeType(nodes.type)}} ${nodes.name} ${nodes.desc}`;
+          }
         }
       }
     }

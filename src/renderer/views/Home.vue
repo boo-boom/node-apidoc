@@ -329,7 +329,7 @@ export default {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           this.showGeLoading = true;
-          console.log(this.lastObject)
+          // console.log(this.lastObject)
           remote.dialog.showOpenDialog(
             {
               title: "选择当前文档所需存放的目录",
@@ -433,16 +433,38 @@ export default {
           });
         }
       })
-      // console.log(dynamicEntity)
+
+      const _indexArr = []           // 匹配的实体下标
+      for(let i = 0; i < this.dynamicEntity.length; i++) {
+        for(let j = 0; j < _dynamicEntity.length; j++) {
+          const node = _dynamicEntity[j];
+          for(let k = 0; k < node.fieldList.length; k++) {
+            if(this.dynamicEntity[i] === node.fieldList[k].type) {
+              _indexArr.push(i)
+            }
+          }
+        }
+      }
+
       // format动态组件结构
+      this.dynamicEntity = []
       const dynamicEntityList = [];
-      if(_dynamicEntity.length) {
-        for (let i = 0; i < _dynamicEntity.length; i++) {
-          const node = _dynamicEntity[i];
+      const lastDynamic = []
+      _dynamicEntity.forEach((item, index) => {
+        if(!_indexArr.includes(index)) {
+          lastDynamic.push(_dynamicEntity[index])
+          this.dynamicEntity.push(_dynamicEntity[index].name)
+        }
+      })
+      if(lastDynamic.length) {
+        for (let i = 0; i < lastDynamic.length; i++) {
+          const node = lastDynamic[i];
           dynamicEntityList[i] = ({
             isDynamic: true,
             nanoid: nanoid(),
             showChild: false,
+            isList: false,
+            type: 'Api_DynamicEntity',
             entity: node.name,
             nodes: this.getJsonTree(data, node.name, true),
           });
@@ -462,14 +484,14 @@ export default {
           }
         }
         if (node.name == type) {
+          if(!openGetName) {
+            // 已经匹配到type的实体
+            if(this.entityName.indexOf(node.name) < 0) {
+              this.entityName.push(node.name);
+            }
+          }
           for (let j = 0; j < node.fieldList.length; j++) {
             const _nodeType = node.fieldList[j].type;
-            if(!openGetName) {
-              // 已经匹配到type的实体
-              if(this.entityName.indexOf(node.name) < 0) {
-                this.entityName.push(node.name);
-              }
-            }
             const newNode = {
               ...node.fieldList[j],
               nanoid: nanoid(),
