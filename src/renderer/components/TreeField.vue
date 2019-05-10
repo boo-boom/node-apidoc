@@ -30,8 +30,8 @@
           </div>
         </el-col>
         <el-col :span="1" class="btns">
-          <i class="el-icon-close" v-if="depth > 0 || content.length > 1" @click="removeField(index)"></i>
-          <el-tooltip class="pd-0" effect="dark" :content="tooltip(item.type, item.isDynamic).text" placement="top" v-if="depth > 0 || content.length > 1">
+          <i class="el-icon-close" v-if="item.isDynamic || (depth > 0 || content.length > 1)" @click="removeField(index)"></i>
+          <el-tooltip class="pd-0" effect="dark" :content="tooltip(item.type, item.isDynamic).text" placement="top" v-if="!item.isDynamic || (depth > 0 || content.length > 1)">
             <el-button type="text" icon="el-icon-plus" @click="addField(item, index)"></el-button>
           </el-tooltip>
           <el-dropdown @command="addField(item, index, $event)" v-else>

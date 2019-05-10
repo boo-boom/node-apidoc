@@ -4,7 +4,7 @@
       <editor v-model="apiDocStr" @init="editorInit" lang="javascript" theme="chrome" width="100%" height="100%"></editor>
     </div>
     <div class="btns-group">
-      <el-button class="json-doc" size="small" type="warning" icon="el-icon-upload2" @click="typeTab" v-show="!editorSuccess">{{editIsJson?'JSON模式':'DOC模式'}}</el-button>
+      <!-- <el-button class="json-doc" size="small" type="warning" icon="el-icon-upload2" @click="typeTab" v-show="!editorSuccess">{{editIsJson?'JSON模式':'DOC模式'}}</el-button> -->
       <el-button class="json-doc" size="small" type="warning" icon="el-icon-upload2" @click="backEdit" v-show="editorSuccess">修改apidoc</el-button>
       <el-button class="transform-doc" size="small" type="primary" :icon="showTfLoading?'el-icon-loading':'el-icon-sort'" @click="docToJson" v-show="!editorSuccess"> 文档转换</el-button>
       <el-button class="generate-doc" size="small" type="danger" :icon="showGeLoading?'el-icon-loading':'el-icon-download'" :disabled="!docLoadDone" @click="jsonToDoc('ruleForm')" v-show="editorSuccess"> 文档生成</el-button>
@@ -18,7 +18,7 @@
         <!-- 请求参数 -->
         <div class="title">
           <span>请求参数</span>
-          <el-button size="mini" type="warning" icon="el-icon-upload2" @click="addParam">添加参数</el-button>
+          <el-button size="mini" type="primary" icon="el-icon-upload2" @click="addParam">添加参数</el-button>
         </div>
         <ParamsInfo v-if="lastObject.params.length" :content="lastObject.params" :depth="0"/>
         <!-- 返回数据 -->
@@ -39,14 +39,14 @@
           <div>
             <div class="title" style="paddingTop:20px;">
               <span>动态实体 [谨慎修改]</span>
-              <el-button size="mini" type="warning" icon="el-icon-upload2" @click="addDynamicEntity">添加动态实体</el-button>
+              <el-button size="mini" type="primary" icon="el-icon-upload2" @click="addDynamicEntity">添加实体</el-button>
             </div>
             <tree-field type="dynamic" :content="lastObject.dynamicEntity" :depth="0" v-if="lastObject.dynamicEntity.length"/>
           </div>
           <!-- error -->
           <div class="title" style="paddingTop:20px;">
             <span>Error</span>
-            <el-button size="mini" type="warning" icon="el-icon-upload2" @click="addCode">添加code</el-button>
+            <el-button size="mini" type="primary" icon="el-icon-upload2" @click="addCode">添加code</el-button>
           </div>
           <error-info v-if="lastObject.error.length" :content="lastObject.error" />
         </div>
@@ -189,6 +189,7 @@ export default {
           title: "错误",
           message: "数据不能为空"
         });
+        this.showTfLoading = false;
         return
       }
       if(this.editIsJson) {
