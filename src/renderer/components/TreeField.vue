@@ -4,7 +4,7 @@
       <!-- <p class="dynamicEntityName" v-if="type=='dynamic'">{{item.entity}}</p> -->
       <el-row :gutter="10">
         <el-col class="indent" :span="8" :style="{paddingLeft:`${depth * 30}px`}">
-          <i :class="[`el-icon-caret-${item.showChild?'top':'bottom'}`]" v-if="item.nodes.length" @click="toggleShowChild(item)"></i>
+          <i :class="[`el-icon-caret-${item.showChild?'bottom':'right'}`]" v-if="item.nodes.length" @click="toggleShowChild(item)"></i>
           <i v-else></i>
           <el-input size="mini" placeholder="字段名" v-model="item.entity" v-if="type == 'dynamic'"></el-input>
           <el-input size="mini" placeholder="字段名" v-model="item.name" v-else></el-input>
@@ -102,7 +102,7 @@ export default {
             _item.entity = _item.entity.replace(']', '');
           }
         }
-        item.nodes.push(_item);
+        item.nodes.unshift(_item);
       } else {
         this.content.splice(index + 1, 0, _item);
       }

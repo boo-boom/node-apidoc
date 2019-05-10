@@ -3,7 +3,7 @@
     <div v-for="(item, index) in content" :key="item.nanoid">
       <el-row :gutter="10">
         <el-col class="indent" :span="6" :style="{paddingLeft:`${depth * 30}px`}">
-          <i :class="[`el-icon-caret-${item.showChild?'top':'bottom'}`]" v-if="item.nodes.length" @click="toggleShowChild(item)"></i>
+          <i :class="[`el-icon-caret-${item.showChild?'bottom':'right'}`]" v-if="item.nodes.length" @click="toggleShowChild(item)"></i>
           <i v-else></i>
           <el-input size="mini" placeholder="字段名" v-model="item.name"></el-input>
         </el-col>
@@ -81,7 +81,7 @@ export default {
       this.$set(item, 'showChild', !item.showChild);
     },
     addField(item, index, depth, command) {
-      console.log(item.entity)
+      // console.log(item.entity)
       let _item = {
         desc: "",
         isList: false,
@@ -95,7 +95,7 @@ export default {
       const tag = command || this.tooltip(item.type).tag;
       if(tag === 'child') {
         this.content[index].showChild = true;
-        item.nodes.push(_item);
+        item.nodes.unshift(_item);
       } else {
         if(depth <= 0) {
           _item = {
