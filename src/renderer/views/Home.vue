@@ -1,7 +1,11 @@
 <template>
   <div class="home-container">
     <div class="code-edit" v-if="!editorSuccess">
-      <editor v-model="apiDocStr" @init="editorInit" lang="javascript" theme="chrome" width="100%" height="100%"></editor>
+      <editor v-model="apiDocStr" @init="editorInit" ref="myEditor" lang="javascript" theme="dreamweaver" width="100%" height="100%"></editor>
+      <!-- editor-serarch -->
+      <el-input class="editor-search" size="mini" placeholder="search..." v-model="editorSearch" @keyup.enter.native="editorFind">
+        <i class="el-input__icon" slot="suffix" @click="editorFindAll">ALL</i>
+      </el-input>
     </div>
     <div class="btns-group">
       <!-- <el-button class="json-doc" size="small" type="warning" icon="el-icon-upload2" @click="typeTab" v-show="!editorSuccess">{{editIsJson?'JSON模式':'DOC模式'}}</el-button> -->
@@ -87,7 +91,7 @@
 </template>
 
 <script>
-// import apiDocStr from './../../../static/test/apiDoc.js';
+import apiDocStr from './../../../static/test/apiDoc.js';
 const path = require('path');
 const fs = require('fs');
 const { fomartJson } = require('@/assets/utils/docJsonFormat')
@@ -125,6 +129,8 @@ export default {
       allEntityName: [],    // 全部动态实体名
       entityName: [],       // 非动态实体名
       dynamicEntity: [],    // 动态实体名
+      findInPage:  null,    // 搜索实例
+      editorSearch: '',     // 编辑器界面时搜索内容
       editIsJson: false,    // 是否是导入json
       editorSuccess: false, // 编辑器是否完成编辑
       jsonState: null,      // 导入json后数据状态
@@ -147,16 +153,25 @@ export default {
       }
     }
   },
+  destroyed() {
+    this.findInPage.destroy()
+  },
   mounted() {
-    // this.apiDocStr = apiDocStr;
+    this.apiDocStr = apiDocStr;
     this.$nextTick(() => {
-      let findInPage = new FindInPage(remote.getCurrentWebContents(), {
-        preload: true,
-        offsetTop: 40,
-        offsetRight: 10
-      })
+      if(!this.findInPage) {
+        this.findInPage = new FindInPage(remote.getCurrentWebContents(), {
+          preload: true,
+          offsetTop: 40,
+          offsetRight: 10
+        })
+      }
       ipcRenderer.on('on-find', (e, args) => {
-        findInPage.openFindWindow()
+        if(this.editorSuccess) {
+          this.findInPage.openFindWindow()
+        } else {
+          this.editorFind()
+        }
       })
     })
   },
@@ -184,13 +199,24 @@ export default {
     }
   },
   methods: {
-    editorInit: function () {
+    editorInit: function (editor) {
         require('brace/ext/language_tools') //language extension prerequsite...
         require('brace/mode/html')
         require('brace/mode/javascript')    //language
         require('brace/mode/less')
-        require('brace/theme/chrome')
+        require('brace/theme/dreamweaver')
         require('brace/snippets/javascript') //snippet
+    },
+    editorFind() {
+      let editor = this.$refs.myEditor.editor;
+      editor.find(this.editorSearch);
+      // console.log(this.editorSearch)
+    },
+    editorFindAll() {
+      this.$nextTick(() => {
+        let editor = this.$refs.myEditor.editor;
+        editor.findAll(this.editorSearch);
+      })
     },
     // 转换文档
     docToJson() {
@@ -730,6 +756,23 @@ export default {
       .el-icon-question {
         font-size: 14px;
       }
+    }
+  }
+
+  .editor-search {
+    position: fixed;
+    top: 50px;
+    right: 10px;
+    width: 300px;
+    z-index: 10;
+    .el-input__icon {
+      height: 100%;
+      width: 30px;
+      padding-left: 5px;
+      border-left: 1px solid #eee;
+      color: #409eff;
+      font-weight: bold;
+      cursor: pointer;
     }
   }
 }
