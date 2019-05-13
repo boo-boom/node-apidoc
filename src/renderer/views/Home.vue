@@ -87,7 +87,7 @@
 </template>
 
 <script>
-import apiDocStr from './../../../static/test/apiDoc.js';
+// import apiDocStr from './../../../static/test/apiDoc.js';
 const path = require('path');
 const fs = require('fs');
 const { fomartJson } = require('@/assets/utils/docJsonFormat')
@@ -148,7 +148,7 @@ export default {
     }
   },
   mounted() {
-    this.apiDocStr = apiDocStr;
+    // this.apiDocStr = apiDocStr;
     this.$nextTick(() => {
       let findInPage = new FindInPage(remote.getCurrentWebContents(), {
         preload: true,
@@ -714,7 +714,7 @@ export default {
     left: 0;
     right: 0;
     height: 20px;
-    background: rgba(245, 108, 108, 0.9);
+    background: rgba(64, 160, 255, 0.8);
     font-size: 12px;
     color: #fff;
     padding: 0 20px;
