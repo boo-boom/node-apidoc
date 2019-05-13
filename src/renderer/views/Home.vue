@@ -91,7 +91,7 @@
 </template>
 
 <script>
-import apiDocStr from './../../../static/test/apiDoc.js';
+// import apiDocStr from './../../../static/test/apiDoc.js';
 const path = require('path');
 const fs = require('fs');
 const { fomartJson } = require('@/assets/utils/docJsonFormat')
@@ -157,7 +157,7 @@ export default {
     this.findInPage.destroy()
   },
   mounted() {
-    this.apiDocStr = apiDocStr;
+    // this.apiDocStr = apiDocStr;
     this.$nextTick(() => {
       if(!this.findInPage) {
         this.findInPage = new FindInPage(remote.getCurrentWebContents(), {
