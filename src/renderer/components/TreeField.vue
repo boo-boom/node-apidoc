@@ -12,7 +12,9 @@
         <el-col :span="8">
           <el-input size="mini" placeholder="类型" value="Api_DynamicEntity" v-if="type == 'dynamic'" disabled></el-input>
           <div v-else>
-            <el-input size="mini" placeholder="类型" v-model="item.type" @change="editType(item)" v-if="!item.nodes.length || !item.type"></el-input>
+            <el-input size="mini" placeholder="类型" v-model="item.type" @change="editType(item)" v-if="!item.nodes.length || !item.type">
+              <i slot="suffix" class="el-input__icon el-icon-question red" v-if="item.isSelfEntity"></i>
+            </el-input>
             <el-tooltip class="pd-0" effect="dark" :content="item.type" placement="top" v-if="item.type && item.nodes.length">
               <el-input size="mini" placeholder="类型" v-model="item.type" @change="editType(item)">
                 <i slot="suffix" class="el-input__icon el-icon-warning" v-if="item.isList"></i>
@@ -31,7 +33,7 @@
         </el-col>
         <el-col :span="1" class="btns">
           <i class="el-icon-close" v-if="item.isDynamic || (depth > 0 || content.length > 1)" @click="removeField(index)"></i>
-          <el-tooltip class="pd-0" effect="dark" :content="tooltip(item.type, item.isDynamic).text" placement="top" v-if="!item.isDynamic || (depth > 0 || content.length > 1)">
+          <el-tooltip class="pd-0" effect="dark" :content="tooltip(item.type, item.isDynamic, item.isSelfEntity).text" placement="top" v-if="!item.isDynamic || (depth > 0 || content.length > 1)">
             <el-button type="text" icon="el-icon-plus" @click="addField(item, index)"></el-button>
           </el-tooltip>
           <el-dropdown @command="addField(item, index, $event)" v-else>
@@ -72,7 +74,9 @@ export default {
   },
   methods: {
     editType(item) {
-      if(this.isObject(item.type, item.isDynamic)) {
+      item.isSelfEntity = item.type !== item.entity ? false : true;
+      if(item.isSelfEntity) item.nodes = [];
+      if(this.isObject(item.type, item.isDynamic, item.isSelfEntity)) {
         item.nodes.forEach(node => {
           node.entity = item.type;
         });
@@ -92,6 +96,10 @@ export default {
         type: "string",
         entity: item.entity
       };
+      if(item.isSelfEntity) {
+        this.content.splice(index + 1, 0, _item);
+        return
+      }
       const tag = command || this.tooltip(item.type).tag;
       if(tag === 'child' || item.isDynamic) {
         this.content[index].showChild = true;
@@ -111,17 +119,19 @@ export default {
       this.content.splice(index, 1);
     },
     // 判断类型是否是对象
-    isObject(type, isDynamic) {
-      const test = /^Api_/ig.test(type) ||
-                   /^list\[Api_\w+\]$/ig.test(type) ||
-                   isDynamic ||
-                   type == 'array' ||
-                   type == 'object';
+    isObject(type, isDynamic, isSelfEntity) {
+      const test = isSelfEntity
+                    ? false
+                    : (/^Api_/ig.test(type) ||
+                      /^list\[Api_\w+\]$/ig.test(type) ||
+                      isDynamic ||
+                      type == 'array' ||
+                      type == 'object');
       return test;
     },
     // 判断是否是子节点，用于判断添加字段时的逻辑处理
-    tooltip(type, isDynamic) {
-      const test = this.isObject(type, isDynamic);
+    tooltip(type, isDynamic=false, isSelfEntity=false) {
+      const test = this.isObject(type, isDynamic, isSelfEntity);
       return test ? {tag: 'child', text: '添加子节点'} : {tag: 'sibling', text: '添加兄弟节点'};
     },
     editIsList(item) {
@@ -142,6 +152,10 @@ export default {
   }
   .el-input__icon {
     color: $warning;
+    &.red {
+      font-size: 14px;
+      color: #F56C6C;
+    }
   }
   .el-row {
     margin-bottom: 10px;

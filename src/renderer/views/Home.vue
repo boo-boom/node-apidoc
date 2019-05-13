@@ -72,11 +72,22 @@
       </div>
     </el-dialog>
 
+    <div class="prompt">
+      <p>
+        <i class="el-icon-warning"></i>
+        <span>List类型</span>
+      </p>
+      <p>
+        <i class="el-icon-question"></i>
+        <span>实体内调用了该实体</span>
+      </p>
+    </div>
+
   </div>
 </template>
 
 <script>
-// import apiDocStr from './../../../static/test/apiDoc.js';
+import apiDocStr from './../../../static/test/apiDoc.js';
 const path = require('path');
 const fs = require('fs');
 const { fomartJson } = require('@/assets/utils/docJsonFormat')
@@ -137,7 +148,7 @@ export default {
     }
   },
   mounted() {
-    // this.apiDocStr = apiDocStr;
+    this.apiDocStr = apiDocStr;
     this.$nextTick(() => {
       let findInPage = new FindInPage(remote.getCurrentWebContents(), {
         preload: true,
@@ -272,7 +283,6 @@ export default {
                   }
                 }
                 fomartJson(api_data, infoJson => {
-                  // console.log(infoJson)
                   const curApi = infoJson.apiList[0];
                   // 获取初始化数据
                   this.lastObject.baseInfo = {
@@ -492,6 +502,7 @@ export default {
           }
           for (let j = 0; j < node.fieldList.length; j++) {
             const _nodeType = node.fieldList[j].type;
+            // 如果实体内字段调用实体本身时 _nodeType === node.name
             const newNode = {
               ...node.fieldList[j],
               nanoid: nanoid(),
@@ -500,7 +511,10 @@ export default {
               type: node.fieldList[j].isList
                 ? `List[${node.fieldList[j].type}]`
                 : node.fieldList[j].type,
-              nodes: this.getJsonTree(data, _nodeType)
+              nodes: _nodeType !== node.name
+                ? this.getJsonTree(data, _nodeType)
+                : [],
+              isSelfEntity: _nodeType === node.name
             };
             itemArr.push(newNode);
           }
@@ -689,6 +703,34 @@ export default {
     /*滚动条里面轨道*/
     border-radius: 10px;
     background: none;
+  }
+
+  .prompt {
+    display: flex;
+    justify-items: center;
+    align-items: center;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 20px;
+    background: rgba(245, 108, 108, 0.9);
+    font-size: 12px;
+    color: #fff;
+    padding: 0 20px;
+    box-sizing: border-box;
+    & > p {
+      display: flex;
+      align-items: center;
+      padding-right: 100px;
+      & > i {
+        padding-right: 10px;
+        font-size: 12px;
+      }
+      .el-icon-question {
+        font-size: 14px;
+      }
+    }
   }
 }
 </style>

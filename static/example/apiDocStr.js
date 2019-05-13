@@ -1,3 +1,4 @@
+
 /**
  * @api {post} aestheticslab.getLectureAllInfo getLectureAllInfo
  *
