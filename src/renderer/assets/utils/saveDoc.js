@@ -87,9 +87,9 @@ const saveParams = (info) => {
   for(let i = 0; i < list.length; i++) {
     if(list[i].type) {
       if(i === 0) {
-        str += `*\n * @block [${list[i].type}]`;
+        str += `*\n * @block [${nodeType(list[i].type)}]`;
       } else {
-        str += `\n *\n * @block [${list[i].type}]`;
+        str += `\n *\n * @block [${nodeType(list[i].type)}]`;
       }
     } else {
       str += `*`;
@@ -98,9 +98,9 @@ const saveParams = (info) => {
       list[i].nodes = unique(list[i].nodes);
       const nodes = list[i].nodes[j];
       if(nodes.isParame) {
-        str += `\n * @apiParam {${nodes.type}} ${nodes.isRequired ? nodes.name : '['+nodes.name+']'} ${nodes.desc || nodes.description}`;
+        str += `\n * @apiParam {${nodeType(nodes.type)}} ${nodes.isRequired ? nodes.name : '['+nodes.name+']'} ${nodes.desc || nodes.description}`;
       } else {
-        str += `\n * @apiParam (${list[i].type}) {${nodes.type}} ${nodes.name} ${nodes.desc || nodes.description}`;
+        str += `\n * @apiParam (${nodeType(list[i].type)}) {${nodeType(nodes.type)}} ${nodes.name} ${nodes.desc || nodes.description}`;
       }
     }
   }
