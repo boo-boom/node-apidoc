@@ -10,7 +10,7 @@
     <div class="btns-group">
       <!-- <el-button class="json-doc" size="small" type="warning" icon="el-icon-upload2" @click="typeTab" v-show="!editorSuccess">{{editIsJson?'JSON模式':'DOC模式'}}</el-button> -->
       <el-button class="json-doc" size="small" type="warning" icon="el-icon-upload2" @click="backEdit" v-show="editorSuccess">修改apidoc</el-button>
-      <el-button class="transform-doc" size="small" type="primary" :icon="showTfLoading?'el-icon-loading':'el-icon-sort'" @click="docToJson" v-show="!editorSuccess"> 文档转换</el-button>
+      <el-button class="transform-doc" size="small" type="primary" :icon="showTfLoading?'el-icon-loading':'el-icon-sort'" @click="budleDocToJson" v-show="!editorSuccess"> 文档转换</el-button>
       <el-button class="generate-doc" size="small" type="danger" :icon="showGeLoading?'el-icon-loading':'el-icon-download'" :disabled="!docLoadDone" @click="jsonToDoc('ruleForm')" v-show="editorSuccess"> 文档生成</el-button>
     </div>
     <div class="json-tree-content scrollStyle">
@@ -91,7 +91,7 @@
 </template>
 
 <script>
-// import apiDocStr from './../../../static/test/apiDoc.js';
+import apiDocStr from './../../../static/test/apiDoc.js';
 const path = require('path');
 const fs = require('fs');
 const { fomartJson } = require('@/assets/utils/docJsonFormat')
@@ -157,7 +157,7 @@ export default {
     this.findInPage.destroy()
   },
   mounted() {
-    // this.apiDocStr = apiDocStr;
+    this.apiDocStr = apiDocStr;
     this.$nextTick(() => {
       if(!this.findInPage) {
         this.findInPage = new FindInPage(remote.getCurrentWebContents(), {
@@ -219,6 +219,25 @@ export default {
       })
     },
     // 转换文档
+    budleDocToJson() {
+      if(this.lastObject.respStructList && this.lastObject.respStructList.length) {
+        this.$confirm('是否重新转换数据?', '提示', {
+          confirmButtonText: '否',
+          cancelButtonText: '是',
+          type: 'warning'
+        }).then(() => {
+          this.editorSuccess = true;
+        }).catch(() => {
+          this.docToJson();
+          this.$message({
+            type: 'info',
+            message: '已更新内容'
+          });
+        });
+      } else {
+        this.docToJson();
+      }
+    },
     docToJson() {
       this.showTfLoading = true;
       if(!this.apiDocStr) {
@@ -374,7 +393,7 @@ export default {
             filePaths => {
               if (filePaths) {
                 this.showGeLoading = false;
-                const { doc, methodName} = saveDoc(this.lastObject, this.dynamicEntity);
+                const { doc, methodName } = saveDoc(this.lastObject, this.dynamicEntity);
                 this.dialogFormVisible = true;
                 this.docFileName = methodName;
                 this.docPath = filePaths[0];
@@ -445,13 +464,21 @@ export default {
     },
     // 返回编辑器时
     backEdit() {
-      this.editorSuccess = !this.editorSuccess
-      const { doc, methodName} = saveDoc(this.lastObject, this.dynamicEntity);
-      this.docFileName = methodName;
-      this.apiDocStr = doc;
-      this.$message({
-        type: 'success',
-        message: '更新文本已内容!'
+      this.$confirm('将数据更新至文本内容?', '提示', {
+        confirmButtonText: '否',
+        cancelButtonText: '是',
+        type: 'warning'
+      }).then(() => {
+        this.editorSuccess = !this.editorSuccess
+      }).catch(() => {
+        this.editorSuccess = !this.editorSuccess
+        const { doc, methodName} = saveDoc(this.lastObject, this.dynamicEntity);
+        this.docFileName = methodName;
+        this.apiDocStr = doc;
+        this.$message({
+          type: 'info',
+          message: '已更新内容'
+        });
       });
     },
     // 获取动态实体

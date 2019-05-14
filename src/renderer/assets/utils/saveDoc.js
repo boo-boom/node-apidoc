@@ -71,8 +71,7 @@ const saveBase = (info) => {
  * "encryptionOnly":${info.encryptionOnly},
  * "needVerify":${info.needVerify}
  *
- * @apiGroup ${methodName(info.methodName)[0]}
- * `;
+ * @apiGroup ${methodName(info.methodName)[0]}`;
   return {
     baseStr: str,
     returnType: nodeType(info.returnType),
@@ -87,7 +86,7 @@ const saveParams = (info) => {
   for(let i = 0; i < list.length; i++) {
     if(list[i].type) {
       if(i === 0) {
-        str += `*\n * @block [${nodeType(list[i].type)}]`;
+        str += `*\n *\n * @block [${nodeType(list[i].type)}]`;
       } else {
         str += `\n *\n * @block [${nodeType(list[i].type)}]`;
       }
@@ -104,6 +103,7 @@ const saveParams = (info) => {
       }
     }
   }
+  str += '\n *'
   // console.log(info)
   return str;
 }
@@ -157,11 +157,11 @@ const saveError = (info) => {
 }
 
 const saveDoc = (apiDate, dynamicEntityName) => {
+  console.log(saveParams(apiDate.params))
   const doc =
 `/**
  ${saveBase(apiDate.baseInfo).baseStr}
  ${saveParams(apiDate.params)}
- *
  ${saveRespStructList(apiDate.respStructList, apiDate.dynamicEntity, dynamicEntityName)}
  *
  *${saveError(apiDate.error)}
