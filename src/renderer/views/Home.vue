@@ -341,6 +341,7 @@ export default {
                     encryptionOnly: curApi.encryptionOnly,
                     needVerify: curApi.needVerify,
                     returnType: curApi.returnType,
+                    mt: curApi.mt
                   }
                   // 获取参数
                   this.lastObject.params = [];

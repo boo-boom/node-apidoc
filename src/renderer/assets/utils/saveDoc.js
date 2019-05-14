@@ -69,7 +69,8 @@ const saveBase = (info) => {
  * "state":"${info.state}",
  * "detail":${info.detail === '' ? '""' : info.detail},
  * "encryptionOnly":${info.encryptionOnly},
- * "needVerify":${info.needVerify}
+ * "needVerify":${info.needVerify},
+ * "mt":"${info.mt || ''}"
  *
  * @apiGroup ${methodName(info.methodName)[0]}`;
   return {

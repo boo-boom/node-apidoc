@@ -12,7 +12,8 @@ export default `
  * "state":"OPEN",
  * "detail":null,
  * "encryptionOnly":false,
- * "needVerify":false
+ * "needVerify":false,
+ * "mt":"yitShopContentService.getPostDetailV2, lifePost.getRecommendSpuList, yitShopContentService.getLikeList, lifePost.getRecommendPostByPostId"
  *
  *
  * @apiGroup aestheticslab

@@ -26,6 +26,7 @@ function fomartJson(api_data, callback) {
     new_json.returnType = mainInfo.returnType
     new_json.securityLevel = mainInfo.securityLevel
     new_json.state = mainInfo.state
+    new_json.mt = mainInfo.mt
 
     //异常列表
     if (json.error && json.error.fields['Error']) {

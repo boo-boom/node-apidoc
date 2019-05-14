@@ -21,7 +21,7 @@
 
         <el-row :gutter="20">
           <el-col class="input" :span="12">
-            <el-form-item label="负责组长" prop="baseInfo.groupOwner">
+            <el-form-item label="项目负责" prop="baseInfo.groupOwner">
               <el-input size="mini" v-model="info.groupOwner" placeholder="请输入内容"></el-input>
             </el-form-item>
           </el-col>
@@ -47,6 +47,15 @@
             </el-form-item>
           </el-col>
         </el-row>
+
+        <el-row :gutter="20">
+          <el-col class="input" :span="24">
+            <el-form-item label="调用后端">
+              <el-input size="mini" v-model="info.mt" placeholder="请输入内容"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
       </div>
 
   </div>
