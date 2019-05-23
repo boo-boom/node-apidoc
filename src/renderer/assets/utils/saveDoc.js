@@ -114,7 +114,7 @@ const saveRespStructList = (info, dynamic, dynamicEntityName) => {
   let list = jsonGroup([...info, ...dynamic]);
   let str = '';
   for(let i = 0; i < list.length; i++) {
-    if(list[i].isDynamic || list[i].type === 'Api_DynamicEntity') {
+    if(list[i].type === 'Api_DynamicEntity') {
       if(i === 0) {
         str += `*\n * @block [${list[i].type}]`;
       } else {
@@ -130,15 +130,14 @@ const saveRespStructList = (info, dynamic, dynamicEntityName) => {
     for(let j = 0; j < list[i].nodes.length; j++) {
       list[i].nodes = unique(list[i].nodes);
       const nodes = list[i].nodes[j];
-      // console.log(list[i])
       if(list[i].isDynamic) {
         if(!nodes.isDynamic) {
-          str += `\n * @apiSuccess (${list[i].type}) {${nodeType(nodes.type)}} ${nodes.name} ${nodes.desc}`;
+          str += `\n * @apiSuccess (${nodeType(list[i].type)}) {${nodeType(nodes.type)}} ${nodes.name} ${nodes.desc}`;
         }
       } else {
         if(list[i].type === 'Api_DynamicEntity'){
           str += `\n * @apiSuccess (${list[i].type}) {${nodes.type}} ${nodes.name} ${nodes.desc}`;
-        } else if(nodes.type === 'List[Api_DynamicEntity]') {
+        } else if(nodes.type === 'Api_DynamicEntity' || nodes.type === 'List[Api_DynamicEntity]') {
           str += `\n * @apiSuccess (${nodeType(list[i].type)}) {${nodes.type}} ${nodes.name} ${nodes.desc}`;
         } else {
           str += `\n * @apiSuccess (${nodeType(list[i].type)}) {${nodeType(nodes.type)}} ${nodes.name} ${nodes.desc}`;
