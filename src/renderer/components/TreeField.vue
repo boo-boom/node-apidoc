@@ -6,7 +6,7 @@
         <el-col class="indent" :span="8" :style="{paddingLeft:`${depth * 30}px`}">
           <i :class="[`el-icon-caret-${item.showChild?'bottom':'right'}`]" v-if="item.nodes.length" @click="toggleShowChild(item)"></i>
           <i v-else></i>
-          <el-input size="mini" placeholder="字段名" v-model="item.entity" v-if="type == 'dynamic'"></el-input>
+          <el-input size="mini" placeholder="字段名" v-model="item.entity" v-if="type == 'dynamic'" @change="editEntity(item)"></el-input>
           <el-input size="mini" placeholder="字段名" v-model="item.name" v-else></el-input>
         </el-col>
         <el-col :span="8">
@@ -73,6 +73,11 @@ export default {
     },
   },
   methods: {
+    editEntity(item) {
+      item.nodes.forEach(node => {
+        node.entity = item.entity
+      })
+    },
     editType(item) {
       item.isSelfEntity = item.type !== item.entity ? false : true;
       if(item.isSelfEntity) item.nodes = [];

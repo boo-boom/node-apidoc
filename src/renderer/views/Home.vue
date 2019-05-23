@@ -91,7 +91,7 @@
 </template>
 
 <script>
-// import apiDocStr from './../../../static/test/apiDoc.js';
+import apiDocStr from './../../../static/test/apiDoc.js';
 const path = require('path');
 const fs = require('fs');
 const { fomartJson } = require('@/assets/utils/docJsonFormat')
@@ -126,9 +126,6 @@ export default {
       showTfLoading: false, // 正在转换文档
       showGeLoading: false, // 是否可以生成文档
       docPath: '',          // 保存的路径
-      allEntityName: [],    // 全部动态实体名
-      entityName: [],       // 非动态实体名
-      dynamicEntity: [],    // 动态实体名
       findInPage:  null,    // 搜索实例
       editorSearch: '',     // 编辑器界面时搜索内容
       editIsJson: false,    // 是否是导入json
@@ -157,7 +154,7 @@ export default {
     this.findInPage.destroy()
   },
   mounted() {
-    // this.apiDocStr = apiDocStr;
+    this.apiDocStr = apiDocStr;
     this.$nextTick(() => {
       if(!this.findInPage) {
         this.findInPage = new FindInPage(remote.getCurrentWebContents(), {
@@ -222,17 +219,17 @@ export default {
     budleDocToJson() {
       if(this.lastObject.respStructList && this.lastObject.respStructList.length) {
         this.$confirm('是否重新转换数据?', '提示', {
-          confirmButtonText: '否',
-          cancelButtonText: '是',
+          confirmButtonText: '是',
+          cancelButtonText: '否',
           type: 'warning'
         }).then(() => {
-          this.editorSuccess = true;
-        }).catch(() => {
           this.docToJson();
           this.$message({
             type: 'info',
             message: '已更新内容'
           });
+        }).catch(() => {
+          this.editorSuccess = true;
         });
       } else {
         this.docToJson();
@@ -357,7 +354,7 @@ export default {
                               : '',
                     })
                     if(curApi.reqStructList.length) {
-                      this.$set(this.lastObject.params[i], 'nodes', this.getJsonTree(curApi.reqStructList, this.lastObject.params[i].type), true);
+                      this.$set(this.lastObject.params[i], 'nodes', this.getJsonTree(curApi.reqStructList, this.lastObject.params[i].type));
                     }
                     if(isEntity(curApi.parameterInfoList[i].type)) {
                       this.lastObject.params[i].type = curApi.parameterInfoList[i].type;
@@ -394,7 +391,7 @@ export default {
             filePaths => {
               if (filePaths) {
                 this.showGeLoading = false;
-                const { doc, methodName } = saveDoc(this.lastObject, this.dynamicEntity);
+                const { doc, methodName } = saveDoc(this.lastObject);
                 this.dialogFormVisible = true;
                 this.docFileName = methodName;
                 this.docPath = filePaths[0];
@@ -466,63 +463,38 @@ export default {
     // 返回编辑器时
     backEdit() {
       this.$confirm('将数据更新至文本内容?', '提示', {
-        confirmButtonText: '否',
-        cancelButtonText: '是',
+        confirmButtonText: '是',
+        cancelButtonText: '否',
         type: 'warning'
       }).then(() => {
         this.editorSuccess = !this.editorSuccess
-      }).catch(() => {
-        this.editorSuccess = !this.editorSuccess
-        const { doc, methodName} = saveDoc(this.lastObject, this.dynamicEntity);
+        const { doc, methodName} = saveDoc(this.lastObject);
         this.docFileName = methodName;
         this.apiDocStr = doc;
         this.$message({
           type: 'info',
           message: '已更新内容'
         });
+      }).catch(() => {
+        this.editorSuccess = !this.editorSuccess
       });
     },
     // 获取动态实体
     getDynamicEntity(data) {
-      // 获取哪些是动态组件，没有匹配到type===name的为动态组件
-      // 这里使用减法获取到动态组件，获取到全部组件名-已经匹配到到组件名=动态组件
       const _dynamicEntity = [];
-      this.allEntityName.forEach(item => {
-        if(!this.entityName.includes(item)) {
-          data.forEach(field => {
-            if(field.name === item) {
-              _dynamicEntity.push(field)
-              this.dynamicEntity.push(field.name)
-            }
-          });
-        }
-      })
-
-      const _indexArr = []           // 匹配的实体下标
-      for(let i = 0; i < this.dynamicEntity.length; i++) {
-        for(let j = 0; j < _dynamicEntity.length; j++) {
-          const node = _dynamicEntity[j];
-          for(let k = 0; k < node.fieldList.length; k++) {
-            if(this.dynamicEntity[i] === node.fieldList[k].type) {
-              _indexArr.push(i)
-            }
+      data.forEach(item => {
+        item.fieldList.forEach(field => {
+          if(field.name === 'isDynamicEntity') {
+            _dynamicEntity.push(item)
           }
-        }
-      }
-
-      // format动态组件结构
-      this.dynamicEntity = []
-      const dynamicEntityList = [];
-      const lastDynamic = []
-      _dynamicEntity.forEach((item, index) => {
-        if(!_indexArr.includes(index)) {
-          lastDynamic.push(_dynamicEntity[index])
-          this.dynamicEntity.push(_dynamicEntity[index].name)
-        }
+        })
       })
-      if(lastDynamic.length) {
-        for (let i = 0; i < lastDynamic.length; i++) {
-          const node = lastDynamic[i];
+      // console.log(_dynamicEntity)
+      // // format动态组件结构
+      const dynamicEntityList = [];
+      if(_dynamicEntity.length) {
+        for (let i = 0; i < _dynamicEntity.length; i++) {
+          const node = _dynamicEntity[i];
           dynamicEntityList[i] = ({
             isDynamic: true,
             nanoid: nanoid(),
@@ -530,30 +502,19 @@ export default {
             isList: false,
             type: 'Api_DynamicEntity',
             entity: node.name,
-            nodes: this.getJsonTree(data, node.name, true),
+            nodes: this.getJsonTree(data, node.name),
           });
         }
       }
+      // console.log(dynamicEntityList)
       return dynamicEntityList;
     },
     // 将平铺数据转换成树状结构
-    getJsonTree(data, type, openGetName=false) {
+    getJsonTree(data, type) {
       const itemArr = [];
       for (let i = 0; i < data.length; i++) {
         const node = data[i];
-        if(!openGetName) {
-          // 获取全部实体名
-          if(this.allEntityName.indexOf(node.name) < 0) {
-            this.allEntityName.push(node.name);
-          }
-        }
         if (node.name == type) {
-          if(!openGetName) {
-            // 已经匹配到type的实体
-            if(this.entityName.indexOf(node.name) < 0) {
-              this.entityName.push(node.name);
-            }
-          }
           for (let j = 0; j < node.fieldList.length; j++) {
             const _nodeType = node.fieldList[j].type;
             // 如果实体内字段调用实体本身时 _nodeType === node.name

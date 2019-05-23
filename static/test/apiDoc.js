@@ -59,6 +59,7 @@ export default `
  *
  *
  * @block [Api_COMMUNITYPOST_ImageInfo]
+ * @apiSuccess (Api_COMMUNITYPOST_ImageInfo) {boolean} isDynamicEntity ImageInfo
  * @apiSuccess (Api_COMMUNITYPOST_ImageInfo) {int} id 图片素材ID
  * @apiSuccess (Api_COMMUNITYPOST_ImageInfo) {string} url 图片链接
  * @apiSuccess (Api_COMMUNITYPOST_ImageInfo) {int} width 图宽度
@@ -72,11 +73,13 @@ export default `
  * @apiSuccess (Api_COMMUNITYPOST_NodeTagInfo) {string} 123 123跳转链接123
  *
  * @block [Api_COMMUNITYPOST_SegmentInfo]
+ * @apiSuccess (Api_COMMUNITYPOST_SegmentInfo) {boolean} isDynamicEntity SegmentInfo
  * @apiSuccess (Api_COMMUNITYPOST_SegmentInfo) {Api_Aaa_Bbb} aaa bbb链接
  * @apiSuccess (Api_COMMUNITYPOST_SegmentInfo) {Api_Aaa_Bbb} aaa123 bbb123链接
  *
  *
  * @block [Api_COMMUNITYPOST_TextInfo]
+ * @apiSuccess (Api_COMMUNITYPOST_TextInfo) {boolean} isDynamicEntity TextInfo
  * @apiSuccess (Api_COMMUNITYPOST_TextInfo) {string} text 文字
  * @apiSuccess (Api_COMMUNITYPOST_TextInfo) {string} text1 文字1
  * @apiSuccess (Api_COMMUNITYPOST_TextInfo) {string} text2 文字2
