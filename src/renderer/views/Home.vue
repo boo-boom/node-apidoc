@@ -91,7 +91,7 @@
 </template>
 
 <script>
-// import apiDocStr from './../../../static/test/apiDoc.js';
+import apiDocStr from './../../../static/test/apiDoc.js';
 const path = require('path');
 const fs = require('fs');
 const { fomartJson } = require('@/assets/utils/docJsonFormat')
@@ -154,7 +154,7 @@ export default {
     this.findInPage.destroy()
   },
   mounted() {
-    // this.apiDocStr = apiDocStr;
+    this.apiDocStr = apiDocStr;
     this.$nextTick(() => {
       if(!this.findInPage) {
         this.findInPage = new FindInPage(remote.getCurrentWebContents(), {
@@ -592,12 +592,13 @@ export default {
     },
     // 添加动态实体
     addDynamicEntity() {
+      const nano = nanoid();
       const _item = {
-        entity: `Api_${nanoid()}`,
+        entity: `Api_${nano}`,
         isDynamic: true,
         nanoid: nanoid(),
         nodes: [{
-          desc: "",
+          desc: nano,
           description: "",
           entity: "",
           injectOnly: false,
@@ -605,11 +606,11 @@ export default {
           isParame: true,
           isRequired: true,
           isRsaEncrypt: false,
-          name: `Field_${nanoid(5)}`,
+          name: 'isDynamicEntity',
           nanoid: nanoid(),
           nodes: [],
           sequence: "",
-          type: "string",
+          type: "boolean"
         }],
         showChild: false
       };

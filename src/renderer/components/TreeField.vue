@@ -7,12 +7,12 @@
           <i :class="[`el-icon-caret-${item.showChild?'bottom':'right'}`]" v-if="item.nodes.length" @click="toggleShowChild(item)"></i>
           <i v-else></i>
           <el-input size="mini" placeholder="字段名" v-model="item.entity" v-if="type == 'dynamic'" @change="editEntity(item)"></el-input>
-          <el-input size="mini" placeholder="字段名" v-model="item.name" v-else></el-input>
+          <el-input size="mini" placeholder="字段名" v-model="item.name" :disabled="item.name==='isDynamicEntity'" v-else></el-input>
         </el-col>
         <el-col :span="8">
           <el-input size="mini" placeholder="类型" value="Api_DynamicEntity" v-if="type == 'dynamic'" disabled></el-input>
           <div v-else>
-            <el-input size="mini" placeholder="类型" v-model="item.type" @change="editType(item)" v-if="!item.nodes.length || !item.type">
+            <el-input size="mini" placeholder="类型" v-model="item.type" :disabled="item.name==='isDynamicEntity'" @change="editType(item)" v-if="!item.nodes.length || !item.type">
               <i slot="suffix" class="el-input__icon el-icon-question red" v-if="item.isSelfEntity"></i>
             </el-input>
             <el-tooltip class="pd-0" effect="dark" :content="item.type" placement="top" v-if="item.type && item.nodes.length">
@@ -31,7 +31,8 @@
             </el-tooltip>
           </div>
         </el-col>
-        <el-col :span="1" class="btns">
+        <el-col :span="1" class="btns" v-if="item.name==='isDynamicEntity'"></el-col>
+        <el-col :span="1" class="btns" v-else>
           <i class="el-icon-close" v-if="item.isDynamic || (depth > 0 || content.length > 1)" @click="removeField(index)"></i>
           <el-tooltip class="pd-0" effect="dark" :content="tooltip(item.type, item.isDynamic, item.isSelfEntity).text" placement="top" v-if="!item.isDynamic || (depth > 0 || content.length > 1)">
             <el-button type="text" icon="el-icon-plus" @click="addField(item, index)"></el-button>
@@ -115,7 +116,11 @@ export default {
             _item.entity = _item.entity.replace(']', '');
           }
         }
-        item.nodes.unshift(_item);
+        if(item.isDynamic) {
+          item.nodes.splice(1, 0, _item);
+        } else {
+          item.nodes.unshift(_item);
+        }
       } else {
         this.content.splice(index + 1, 0, _item);
       }
