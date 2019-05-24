@@ -102,6 +102,7 @@ export default {
             description: "",
             injectOnly: false,
             isList: false,
+            isParame: true,
             isRequired: true,
             isRsaEncrypt: false,
             name: `Field_${nanoid(5)}`,

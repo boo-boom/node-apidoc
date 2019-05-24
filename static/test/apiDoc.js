@@ -19,12 +19,7 @@ export default `
  * @apiGroup aestheticslab
  *
  *
- * @apiParam {Api_AESTHETICSLAB_LectureListSearchParam} lectureListSearchParam 活动列表搜索参数
  * @apiParam {Api_AESTHETICSLAB_PageParameter} pageParameter 分页参数
- *
- * @block [Api_AESTHETICSLAB_LectureListSearchParam]
- * @apiParam (Api_AESTHETICSLAB_LectureListSearchParam) {int} storeId 门店ID
- * @apiParam (Api_AESTHETICSLAB_LectureListSearchParam) {string} lectureType 活动类型 END 往期讲座, NEAR_FUTURE 近期讲座, UNDERWAY 进行中讲座
  *
  * @block [Api_AESTHETICSLAB_PageParameter]
  * @apiParam (Api_AESTHETICSLAB_PageParameter) {int} offset 记录偏移量
